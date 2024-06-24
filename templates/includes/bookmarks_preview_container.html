@@ -1,0 +1,23 @@
+{% load static %}
+
+{% for list in bookmarks %}
+<div class="{% if bookmarks|length > forloop.counter %} mb-[var(--space-2xlarge)]{% endif %}">
+    <div class="flex items-center justify-between py-4">
+        <div class="font-400 font-bold mr-[(var(--space-xlarge))]">{{ list.title }}</div>
+        <button hx-get="{% url 'list_view' %}" hx-replace-url="/list/{{list.id}}" hx-target="#center-content" hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user_id}}"}' class="font-500 font-bold px-4 py-2 bg-[color:var(--action-secondary-normal)]">View all</button>
+        
+    </div>
+    <ul class="grid grid-cols-3 gap-x-[var(--space-large)]">
+        {% for item in list.items %}
+        <li>
+            <a hx-get="{% url 'item_view' %}" hx-replace-url="/item/{{item.id}}" hx-target="#center-content" hx-vals='{"item_id":"{{item.id}}", "list_id":"{{list.id}}", "user_id":"{{user_id}}", "last_view":"{{view}}", "last_url":"{{url}}"}'>
+                <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
+                <div class="font-500 font-bold pt-[var(--space-medium)] line-clamp-2">
+                    {{ item.title }}
+                </div>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endfor %}

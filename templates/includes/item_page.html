@@ -1,0 +1,11 @@
+{% include 'includes/header.html' with title=item.title %}
+
+<div class="flex items-center justify-center">
+    <div class="w-[510px] flex flex-col items-center rounded-md my-4 p-[var(--space-3xlarge)] bg-[color:var(--background-default)]">
+        {% if item.iframe %}
+        {{ item.iframe | safe }}
+        {% else %}
+        <iframe class="h-screen w-full" src="{{ item.url }}"></iframe>
+        {% endif %}
+    </div>
+</div>

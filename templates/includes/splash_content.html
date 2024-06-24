@@ -1,0 +1,40 @@
+{% load static %}
+
+<div class="flex items-center justify-center">
+    <div class="splash-content relative h-screen inline-flex justify-center items-center">
+        <img class="screen-image rounded-3xl" src={% static "screen.png" %}>
+        <div class="ml-[var(--space-7xlarge)]">
+            <div class="font-100 font-bold mb-[var(--space-4xlarge)]">
+                Save and share your favourites through Keeplist
+            </div>
+            <div class="flex">
+                    <img class="splash-qr-code mr-[var(--space-large)] rounded-md" src={% static "install-code.png" %}>
+                <div class="">
+                    <p class="font-300 font-bold mb-[var(--space-small)]">
+                        Get the Keeplist app
+                    </p>
+                    <p class="font-500">
+                        Scan the QR code to get the app or download from app stores.
+                    </p>
+                    <div class="flex mt-[var(--space-large)]">
+                        <button class="app-store-button flex flex-inline bg-[color:var(--black)] [&>img]:inline-block mr-[var(--space-small)]">
+                            <img class="mr-[var(--space-medium-small)]" src={% static "apple-icon.svg" %}>
+                            <img src={% static "apple-store-text.svg" %}>
+                        </button>
+                        <button class="app-store-button flex flex-inline bg-[color:var(--black)] [&>img]:inline-block">
+                            <img class="mr-[var(--space-medium-small)]" src={% static "google-play-icon.svg" %}>
+                            <img src={% static "google-play-text.svg" %}>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 flex justify-between">
+            <div class="font-600 mb-[var(--space-medium)] [color:var(--content-tertiary)]"><span>&copy;</span> Keeplist, INC. All rights reserved</div>
+            <div class="font-600 [color:var(--content-tertiary)]">
+                <a href="/" class="m-[var(--space-small)]"><u>Terms of Service</u></a>
+                <a href="/" class="m-[var(--space-small)]"><u>Privacy policy</u></a>
+            </div>
+        </div>
+    </div>
+</div>

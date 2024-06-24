@@ -1,0 +1,27 @@
+{% load static %}
+
+<div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"title":"{{user_name}}"}' hx-trigger="load"></div>
+
+<div class="flex items-center justify-center">
+    <div class="main-content main-content-lg sm:rounded-md flex flex-col items-center mb-2 sm:my-4 p-8 bg-[color:var(--background-default)]">
+        <div hx-get="{% url 'profile_content_view' %}" hx-vals='{"user_id":"{{user_id}}"}' hx-trigger="load" class="profile-content"></div>
+        <div class="lists-container font-400 font-bold w-full">
+            <div hx-target="#list-content" class="tab-list text-center m-auto border-b border-[color:var(--border-normal)] [&>button]:p-2 [&>button]:rounded-none" role="tablist"
+                hx-on:htmx-after-on-load="let currentTab = document.querySelector('[aria-selected=true]');
+                            currentTab.setAttribute('aria-selected', 'false')
+                            currentTab.classList.remove('selected')
+                            let newTab = event.target
+                            newTab.setAttribute('aria-selected', 'true')
+                            newTab.classList.add('selected')">
+                <button hx-get="{% url 'keeplist_preview_view' %}" hx-vals='{"user_id":"{{user_id}}"}' class="inline-block selected border-none relative inset-y-px active:[color:var(--action-inverted-pressed)] selected" role="tab" aria-selected="true" aria-controls="tab-content">Keeplists</button>
+                <button hx-get="{% url 'bookmarks_preview_view' %}" hx-vals='{"user_id":"{{user_id}}"}' class="inline-block relative inset-y-px active:[color:var(--action-inverted-pressed)]" role="tab" aria-selected="false" aria-controls="tab-content">Bookmarks</button>
+            </div>
+            
+            <div id="list-content" hx-get="{% url 'keeplist_preview_view' %}" hx-vals='{"user_id":"{{user_id}}"}' hx-trigger="load" role="tabpanel" class="tab-content">
+                <div class="loading-indicator flex items-center justify-center">
+                    <img  alt="Results loading..." class="htmx-indicator" width="150" src={% static "search.svg" %}/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

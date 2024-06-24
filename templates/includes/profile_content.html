@@ -1,0 +1,20 @@
+{% load static %}
+   
+<div class="w-full px-12 py-4 flex flex-col items-center">    
+    <div class="inline-flex flex-col items-center">
+        <div><img class="w-20 h-20 rounded-full" src="{{ user.profile_pic }}"></div>
+        <div class="font-400 font-bold pt-[var(--space-medium)]">{{ user.name }}</div>
+        <div class="font-500 line-clamp-2 pt-[var(--space-medium)]">{{ user.bio }}</div>
+        <div class="follower-container inline-flex items-center font-400 font-bold pt-[var(--space-medium)]">
+            <div>{{ user.followed_by|length }} followers</div>
+            <div class="h-2 w-2 mx-2 rounded-full bg-[color:var(--background-neutral)]"></div>
+            <div>{{ user.following|length }} following</div>
+        </div>
+    </div>
+    <div class="social-media-container py-[var(--space-2xlarge)]">
+
+    </div>
+    <div class="share-container">
+        <button class="font-500 font-bold px-4 py-2 [color:var(--content-inverted-primary)] bg-[color:var(--action-primary-normal)]">Share Profile</button>
+    </div>
+</div>

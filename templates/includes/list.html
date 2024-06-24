@@ -1,0 +1,9 @@
+<div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"list_id":"{{list_id}}", "user_id":"{{user_id}}", "last_view":"{{last_view}}", "last_url":"{{last_url}}", "title": "{{title}}", "num_links": {{num_links}}}' hx-trigger="load"></div>
+
+<div class="flex items-center justify-center">
+    <div class="main-content main-content-lg sm:rounded-md list-content flex flex-col items-center mb-2 sm:my-4 p-8 bg-[color:var(--background-default)]">
+        <div class="grid grid-cols-3 gap-x-4 gap-y-8">
+            <div hx-get="{% url 'list_content_view' %}" hx-vals='{"list_id": "{{list_id}}", "list_name":"{{title}}"}' hx-trigger="load" hx-swap="outerHTML"></div>
+        </div>
+    </div>
+</div>

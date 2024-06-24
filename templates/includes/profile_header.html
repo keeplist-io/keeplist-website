@@ -1,0 +1,9 @@
+<div class="flex gap-[var(--space-medium)]">
+    <a hx-get="{% url 'profile_view' %}" hx-replace-url="/profile/{{user.id}}" hx-target="#center-content" hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user.id}}", "user_name":"{{user.name}}"}'>
+        <img class="w-10 h-10 rounded-full" src="{{ user.profile_pic }}">
+    </a>
+    <div class="grid grid-rows-2 content-between">
+        <div class="font-500 font-bold">{{ user.name }}</div>
+        <div class="flex font-600 [color:var(--content-tertiary)]"><span class="self-end">2 hr</span></div>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+{% load static %}
+
+<div class="flex relative text-center justify-center align-middle h-full">
+    {% if header_info.hx_vals.last_view %}
+    <div class="flex absolute left-0 top-0 bottom-0 align-middle">
+        <button class="" hx-get="{{header_info.hx_vals.last_view}}" hx-replace-url="{{header_info.hx_vals.last_url}}" hx-vals='{{header_info.hx_vals}}' hx-target="#center-content">
+            <picture>
+                <source
+                  srcset={% static "chevron-left-dark-mode.svg" %}
+                  media="(prefers-color-scheme: dark)"
+                />
+                <img
+                  src={% static "chevron-left.svg" %}
+                  alt="Back"
+                />
+            </picture>
+        </button>
+    </div>
+    {% endif %}
+    <div class="self-center text-center">
+        <span class="block font-400 font-bold">
+            {{ header_info.hx_vals.title }}
+        </span>
+        {% if header_info.subtitle %}
+        <span class="font-500">
+            {{ header_info.subtitle }}
+        </span>
+        {% endif %}
+    </div>
+</div>

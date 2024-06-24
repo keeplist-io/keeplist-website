@@ -1,0 +1,23 @@
+{% load static %}
+
+<div class="hidden sm:block sidebar px-[var(--space-large)] py-[var(--space-2xlarge)] [color:var(--content-tertiary)] bg-[color:var(--background-default)] border-r border-[color:var(--border-normal)] fixed left-0 top-0 bottom-0 z-40">
+    <logo class="inline-block mx-[var(--space-small)] mb-[var(--space-large)]">
+        <a class="inline-block" href="/">
+            <picture>
+                <source
+                srcset={% static "logo-dark-mode.svg" %}
+                media="(prefers-color-scheme: dark)"
+                />
+                <img
+                src={% static "logo.svg" %}
+                alt="KeepList"
+                />
+            </picture>
+        </a>
+    </logo>
+    <nav class="flex flex-col font-500 [&>a]:items-center [&>a]:py-2 [&>a]:px-[var(--space-small)] [&>a]:rounded-lg hover:[&>a]:bg-[color:var(--action-tertiary-selected)] hover:[&>a]:[color:var(--content-primary)] [&>a>img]:mr-2">
+        {% for item in items %}
+        <a class="flex group {% if item.is_selected %} bg-[color:var(--action-tertiary-selected)] [color:var(--content-primary)]{% endif %}" href="{{ item.url }}"><img class="group-hover:hidden" src="{{ item.icon }}"/><img class="hidden group-hover:flex" src="{{ item.icon_selected }}"/>{{ item.text }}</a>
+        {% endfor %}
+    </nav>
+</div>

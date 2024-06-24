@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" class="bg-[color:var(--background-surface)]">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>KeepList</title>
+        <link rel="shortcut icon" type="image/png" href=""/>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+        <script src="https://unpkg.com/htmx.org@1.9.11"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style type="text/tailwindcss">
+            [x-cloak] { 
+                display: none !important; 
+            }
+            :root {
+                --black: #000000;
+
+                --background-default: rgba(255, 255, 255, 100%);
+                --background-inverted: rgba(26, 26, 26, 100%);
+                --background-brand: rgba(117, 56, 243, 100%);
+                --background-surface: rgba(245, 245, 245, 100%);
+                --background-subtle: rgba(240, 240, 240, 100%);
+                --background-neutral: rgba(192, 190, 194, 100%);
+                --background-secondary: rgba(127, 124, 130, 100%);
+
+                --content-primary: rgba(26, 26, 26, 100%);
+                --content-secondary: rgba(86, 85, 87, 100%);
+                --content-tertiary: rgba(127, 124, 130, 100%);
+                --content-disabled: rgba(192, 190, 194, 100%);
+                --content-inverted-primary: rgba(255, 255, 255, 100%);
+                --content-success: rgba(73, 185, 57, 100%);
+                --content-error: rgba(211, 45, 35, 100%);
+                --content-warning: rgba(224, 111, 33, 100%);
+
+                --border-normal: rgba(218, 217, 221, 100%);
+                --border-inverted: rgba(255, 255, 255, 100%);
+                --border-secondary: rgba(192, 190, 194, 100%);
+                --border-tertiary: rgba(162, 161, 164, 100%);
+                --border-selected: rgba(26, 26, 26, 100%);
+
+                --action-primary-normal: rgba(117, 56, 243, 100%);
+                --action-secondary-normal: rgba(240, 240, 240, 100%);
+                --action-tertiary-selected: rgba(240, 240, 240, 100%);
+                --action-inverted-pressed: rgba(127, 124, 130, 100%);
+                
+                --radius-medium: 12px;
+
+                --space-small: 8px;
+                --space-medium-small: 10px;
+                --space-medium: 12px;
+                --space-large: 16px;
+                --space-xlarge: 20px;
+                --space-2xlarge: 24px;
+                --space-3xlarge: 32px;
+                --space-4xlarge: 41px;
+                --space-5xlarge: 48px;
+                --space-7xlarge: 64px;
+
+                --sidebar-width: 236px;
+                --mobile-menu-height: 52px;
+
+                --font-100: 36px;
+                --font-200: 28px;
+                --font-300: 20px;
+                --font-400: 16px;
+                --font-500: 14px;
+                --font-600: 12px;
+                --font-normal: 400;
+                --font-bold: 600;
+                --line-height-100: 44px;
+                --line-height-200: 34px;
+                --line-height-300: 26px;
+                --line-height-400: 22px;
+                --line-height-500: 20px;
+                --line-height-600: 16px;
+            }
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --background-default: rgba(26, 26, 26, 100%);
+                    --background-inverted: rgba(255, 255, 255, 100%);
+                    --background-brand: rgba(145, 96, 245, 100%);
+                    --background-surface: rgba(0, 0, 0, 100%);
+                    --background-subtle: rgba(60, 60, 61, 100%);
+                    --background-neutral: rgba(86, 85, 87, 100%);
+                    --background-secondary: rgba(86, 85, 87, 100%);
+
+                    --content-primary: rgba(240, 240, 240, 100%);
+                    --content-secondary: rgba(218, 217, 221, 100%);
+                    --content-tertiary: rgba(127, 124, 130, 100%);
+                    --content-disabled: rgba(86, 85, 87, 100%);
+                    --content-inverted-primary: rgba(255, 255, 255, 100%);
+                    --content-success: rgba(112, 202, 99, 100%);
+                    --content-error: rgba(220, 87, 79, 100%);
+                    --content-warning: rgba(230, 140, 77, 100%);
+
+                    --border-normal: rgba(60, 60, 61, 100%);
+                    --border-inverted: rgba(26, 26, 26, 100%);
+                    --border-secondary: rgba(86, 85, 87, 100%);
+                    --border-tertiary: rgba(127, 124, 130, 100%);
+                    --border-selected: rgba(255, 255, 255, 100%);
+
+                    --action-primary-normal: rgba(145, 96, 245, 100%);
+                    --action-secondary-normal: rgba(42, 42, 43, 100%);
+                    --action-tertiary-selected: rgba(60, 60, 61, 100%);
+                    --action-inverted-pressed: rgba(192, 190, 194, 100%);
+                }
+            }
+            body {
+                font-family: 'Roboto';
+                font-feature-settings: "liga" off, "clig" off;
+            }
+            .font-100 {
+                font-size: var(--font-100);
+                font-weight: var(--font-normal);
+                line-height: var(--line-height-100);
+            }
+            .font-200 {
+                font-size: var(--font-200);
+                font-weight: var(--font-normal);
+                line-height: var(--line-height-200);
+            }
+            .font-300 {
+                font-size: var(--font-300);
+                font-weight: var(--font-normal);
+                line-height: var(--line-height-300);
+            }
+            .font-400 {
+                font-size: var(--font-400);
+                font-weight: var(--font-normal);
+                line-height: var(--line-height-400);
+            }
+            .font-500 {
+                font-size: var(--font-500);
+                font-weight: var(--font-normal);
+                line-height: var(--line-height-500);
+            }
+            .font-600 {
+                font-size: var(--font-600);
+                font-weight: var(--font-normal);
+                line-height: var(--line-height-600);
+            }
+            .font-bold {
+                font-weight: var(--font-bold);
+            }
+            a {
+                cursor: pointer;
+            }
+            .button:hover, button:hover, [type='submit']:hover, [type='button']:hover {
+                
+            }
+            .button:active, button:active, [type='submit']:active, [type='button']:active {
+                transform: scale(0.95);
+            }
+            button {
+                border-radius: var(--radius-medium);
+            }
+            .tab-content {
+                min-height: 268px;
+            }
+            .sidebar, .sidebar-placeholder {
+                width: var(--sidebar-width);
+            }
+            header {
+                height: 56px;
+
+                @media (min-width: 640px) {
+                    left: var(--sidebar-width);
+                    height: 66px;
+                }
+            }
+            .content-container {
+                margin-bottom: var(--mobile-menu-height);
+
+                @media (min-width: 640px) {
+                    margin-left: var(--sidebar-width);
+                    margin-bottom: 0;
+                }
+            }
+            .main-content {
+                width: 100%;
+
+                @media (min-width: 640px) {
+                    width: auto;
+                    margin-top: var(--space-large);
+                }
+            }
+            .main-content-lg {
+                @media (min-width: 744px) {
+                    width: 744px;
+                }
+            }
+            .main-content-md {
+                width: 100%;
+
+                @media (min-width: 760px) {
+                    width: 512px;
+                }
+            }
+            .splash-content {
+                max-width: 724px;
+            }
+            .profile-content {
+                min-height: 316px;
+            }
+            .list-content {
+                min-height: 312px;
+            }
+            .item-content {
+                min-height: 540px;
+
+                @media (min-width: 640px) {
+                    min-height: 640px;
+                }
+            }
+            .screen-image, .mobile-screen-image {
+                border-width: 6px;
+                border-color: var(--border-selected);
+
+                @media (prefers-color-scheme: dark) {
+                    border-color: var(--border-normal);
+                }
+            }
+            .screen-image {
+                width: 228px;
+            }
+            .mobile-screen-image {
+                width: 60%;
+            }
+            .splash-qr-code {
+                width: 136px;
+                height: 136px;
+            }
+            .selected {
+                border-bottom: 3px solid var(--action-primary-normal);
+            }
+            .line-clamp-4 {
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                /* truncate to 2 lines */
+                -webkit-line-clamp: 2;
+            }
+            .loading-indicator {
+                min-height: inherit;
+            }
+            .app-store-button {
+                padding: 7px 10px;
+                border-radius: 4px;
+            }
+        </style>
+    </head>
+    <body class="bg-[color:var(--background-default)] text-[color:var(--content-primary)]">
+
+        <div class="hidden sm:block menu-placeholder bg-[color:var(--background-default)] border-r border-[color:var(--border-normal)] fixed left-0 top-0 bottom-0 z-40" hx-get="{% url 'menu_view' %}" hx-trigger="load" hx-swap="outerHTML">
+        </div>
+        <div class="sm:hidden menu-placeholder bg-[color:var(--background-default)] border-t border-[color:var(--border-normal)] fixed left-0 right-0 bottom-0 z-40" hx-get="{% url 'mobile_menu_view' %}" hx-trigger="load" hx-swap="outerHTML">
+        </div>
+
+        <main class="content-container w-full sm:w-auto">
+            
+            {% block content %}
+            {% endblock %}
+
+        </main>
+        
+    </body>
+</html>

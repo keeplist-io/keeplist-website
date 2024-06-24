@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <main id="center-content">
+        <div hx-get="{% url 'mobile_splash_content_view' %}" hx-trigger="load" class="flex flex-col items-center"></div>
+    </main>
+
+{% endblock %}

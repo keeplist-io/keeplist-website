@@ -1,0 +1,36 @@
+{% load static %}
+
+<logo class="mx-[var(--space-small)] mt-[var(--space-large)]">
+    <a class="inline-block" href="/">
+        <picture>
+            <source
+            srcset={% static "logo-dark-mode.svg" %}
+            media="(prefers-color-scheme: dark)"
+            />
+            <img
+            src={% static "logo.svg" %}
+            alt="KeepList"
+            />
+        </picture>
+    </a>
+</logo>
+<div class="font-300 font-bold text-center m-[var(--space-xlarge)] mb-[var(--space-medium-small)]">
+    Save and share your favorites through Keeplist
+</div>
+<img src="{{ splash_image }}" class="mobile-screen-image rounded-3xl m-[var(--space-large)]">
+<div class="fixed right-0 left-0 bottom-12 text-center">
+    <div class="relative -bottom-1 h-28 bg-gradient-to-t from-[color:var(--background-default)]">
+
+    </div>
+    <div class="pt-[var(--space-2xlarge)] pb-[var(--space-xlarge)] bg-[color:var(--background-default)]">
+        <button class="app-store-button mb-[var(--space-2xlarge)] bg-[color:var(--black)] [&>img]:inline-block">
+            <img class="mr-[var(--space-medium-small)]" src="{{app_store_image}}">
+            <img src="{{app_store_text_image}}">
+        </button>
+        <div class="font-600 mb-[var(--space-medium)] [color:var(--content-tertiary)]"><span>&copy;</span> Keeplist, INC. All rights reserved</div>
+        <div class="font-600 [color:var(--content-tertiary)]">
+            <a href="/" class="m-[var(--space-small)]"><u>Terms of Service</u></a>
+            <a href="/" class="m-[var(--space-small)]"><u>Privacy policy</u></a>
+        </div>
+    </div>
+</div>
