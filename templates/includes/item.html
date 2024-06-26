@@ -12,6 +12,6 @@
             </div>
         </div>
     </div>
-    <div hx-get="{% url 'more_items_view' %}" hx-vals='{"item_id": "{{item_id}}", "list_id": "{{list_id}}"}' hx-swap="outerHTML" hx-trigger="load">
+    <div hx-get="{% url 'more_items_view' %}" hx-vals='{"item_id": "{{item_id}}", "user_id":"{{user_id}}", "list_id": "{{list_id}}"}' hx-swap="outerHTML" hx-trigger="load">
     </div>
 </div>

@@ -4,7 +4,7 @@
 
     <div class="grid grid-cols-2 gap-x-4 gap-y-8">
     {% for item in results %}
-        <a hx-get="{% url 'item_view' %}" hx-replace-url="/item/{{item.id}}" hx-target="#center-content" hx-vals='{"item_id":"{{item.id}}", "list_id":"{{list_id}}", "last_url":"{{last_url}}", "last_view":"{{last_view}}"}'>
+        <a hx-get="{% url 'item_view' %}" hx-replace-url="/item/{{item.id}}" hx-target="#center-content" hx-vals='{"item_id":"{{item.id}}", "user_id":"{{user_id}}", "list_id":"{{list_id}}", "last_url":"{{last_url}}", "last_view":"{{last_view}}"}'>
             <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
             <div class="pt-[var(--space-medium)] font-500 font-bold line-clamp-2">
                 {{ item.title }}

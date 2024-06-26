@@ -224,7 +224,7 @@ def profile_view(request, user_id="", user_name=""):
             response = redirect('/')
             return response
             
-        user_name = user.get("name", "No Name")
+        user_name = user.get("name", "")
     
     return render(request, 'includes/profile.html', {'user_id': user_id, 'user_name': user_name})
 
@@ -296,9 +296,6 @@ def list_view(request, list_id=""):
         request.session['list_name'] = list_name
         
     list_name = request.session.get('list_name', '')
-    
-    if not list_name:
-        list_name = "NO NAME!"
         
     user_id = request.GET.get("user_id", "")
     
@@ -327,12 +324,14 @@ def item_page_view(request, item_id=""):
     endpoint = get_api_url('items/'+item_id)
     response = requests.get(endpoint)
     data = response.json()
+    print(data)
     list_id = data['list']['id']
+    user_id = data['user']['id']
     
     last_url = "/list/"+list_id
     last_view = "/list-view/"+list_id
     
-    return render(request, 'a_pages/item.html', {'item_id': item_id, 'list_id': list_id, 'last_url': last_url, 'last_view': last_view})
+    return render(request, 'a_pages/item.html', {'item_id': item_id, 'list_id': list_id, 'user_id': user_id, 'last_url': last_url, 'last_view': last_view})
 
 def item_view(request, item_id="", user_id="", list_id="", last_view="", last_url=""):
     if not item_id:    
@@ -362,15 +361,17 @@ def item_content_view(request):
     
     if not data["imageurl"]:
         data["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
-        
-    if not data["icon"]:
-        data["icon"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
+    
+    #it's not "icon" anymore
+    #if not data["icon"]:
+    #    data["icon"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
     
     return render(request, 'includes/item_content.html', {'item': data, 'user_id': data["user"]["id"]})
 
 def more_items_view(request):
     list_id = request.GET.get("list_id")
     item_id = request.GET.get("item_id")
+    user_id = request.GET.get("user_id")
     
     endpoint = get_api_url('items/?list='+list_id)
     response = requests.get(endpoint)
@@ -393,7 +394,7 @@ def more_items_view(request):
     last_view = "/list-view/"+list_id
     last_url = "/list/"+list_id
     
-    return render(request, 'includes/more_items.html', {'results': items, 'list_id': list_id, 'user_name': user_name, 'last_url': last_url, 'last_view': last_view})
+    return render(request, 'includes/more_items.html', {'results': items, 'list_id': list_id, 'user_id': user_id, 'user_name': user_name, 'last_url': last_url, 'last_view': last_view})
 
 def item_page(request):
     #url = request.GET['url']
