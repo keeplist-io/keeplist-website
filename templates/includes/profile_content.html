@@ -6,7 +6,11 @@
         <div class="font-400 font-bold pt-[var(--space-medium)]">{{ user.name }}</div>
         <div class="font-500 line-clamp-2 pt-[var(--space-medium)]">{{ user.bio }}</div>
         <div class="follower-container inline-flex items-center font-400 font-bold pt-[var(--space-medium)]">
+        {% if user.followed_by|length == 1 %}
+            <div>{{ user.followed_by|length }} follower</div>
+        {% else %}
             <div>{{ user.followed_by|length }} followers</div>
+        {% endif %}
             <div class="h-2 w-2 mx-2 rounded-full bg-[color:var(--background-neutral)]"></div>
             <div>{{ user.following|length }} following</div>
         </div>

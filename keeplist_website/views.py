@@ -3,6 +3,7 @@ import requests
 import json
 from .models import *
 from django.templatetags.static import static
+from django.shortcuts import redirect
 from urllib.parse import urlparse
 
 def get_api_url(url_ending):
@@ -128,8 +129,7 @@ def header_content_view(request):
 
 def keeplist_preview_view(request):
     user_id = request.GET.get("user_id", "")
-    #endpoint = get_api_url('lists/?user='+user_id)
-    endpoint = get_api_url('lists/?list_type=KP')
+    endpoint = get_api_url('lists/?list_type=KP&user='+user_id)
     response = requests.get(endpoint)
     list_data = response.json()
     keeplists = []
@@ -154,8 +154,7 @@ def keeplist_preview_view(request):
     
 def bookmarks_preview_view(request):
     user_id = request.GET.get("user_id", "")
-    #endpoint = get_api_url('lists/?user='+user_id?list_type=BK)
-    endpoint = get_api_url('lists/?list_type=BK')
+    endpoint = get_api_url('lists/?list_type=BK&user='+user_id)
     response = requests.get(endpoint)
     list_data = response.json()
     bookmarks = []
@@ -179,13 +178,14 @@ def bookmarks_preview_view(request):
 
 def get_user(user_id):
     endpoint = get_api_url('users/'+user_id)
-    response = requests.get(endpoint)    
-    return response.json()
+    response = requests.get(endpoint)
+    
+    try:
+        return response.json()
+    except:
+        return None
 
 def get_profile_data(session, user_id):
-    user = get_user(user_id)
-    return user
-        
     #sessions aren't working ATM
     session_user_id = session.get("kp_user_id", user_id)
     session_user = session.get("kp_user", get_user(user_id))
@@ -203,7 +203,7 @@ def get_profile_data(session, user_id):
     session.modified = True
     
     #todo : when does session expire?
-    return session["kp_user"]
+    return session.get("kp_user", get_user(user_id))
 
 def profile_page_view(request, user_id=""):    
     return render(request, 'a_pages/profile.html', {'user_id': user_id})
@@ -218,11 +218,20 @@ def profile_view(request, user_id="", user_name=""):
     #if no user name, fetch it
     if not user_name:
         user = get_profile_data(request.session, user_id)
-        user_name = user["name"]
+        
+        if not user:
+            # need this to go to profile page not load the profile splash view within this view
+            response = redirect('/')
+            return response
+            
+        user_name = user.get("name", "No Name")
     
     return render(request, 'includes/profile.html', {'user_id': user_id, 'user_name': user_name})
 
-def profile_content_view(request, user_id=""):    
+def profile_content_view(request, user_id=""):
+    if not user_id:
+        user_id = request.GET.get("user_id", "")
+        
     user = get_profile_data(request.session, user_id)
     
     return render(request, 'includes/profile_content.html', {'user': user})
@@ -263,6 +272,7 @@ def list_content_view(request, list_id=""):
         return render(request, 'includes/splash_content.html')
     
     for item in data['results']:
+            # what default image should be used?
             if not item["imageurl"]:
                 item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
     
@@ -274,29 +284,44 @@ def list_content_view(request, list_id=""):
     
     num_links = len(data["results"])
     
-    return render(request, 'includes/list_content.html', {'results': data["results"], 'list_id': list_id, 'num_links': num_links, 'title': list_title, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id})
+    return render(request, 'includes/list_content.html', {'results': data["results"], 'list_id': list_id, 'user_id': user_id, 'num_links': num_links, 'title': list_title, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id})
 
-def list_view(request, list_id="", list_name=""):
+def list_view(request, list_id=""):
     if not list_id:    
         list_id = request.GET.get("list_id", "")
+        
+    list_name = request.GET.get("list_name", "")
+    
+    if list_name:
+        request.session['list_name'] = list_name
+        
+    list_name = request.session.get('list_name', '')
     
     if not list_name:
-        list_name = request.GET.get("list_name", "")
+        list_name = "NO NAME!"
         
     user_id = request.GET.get("user_id", "")
     
-    if not list_name:
-        endpoint = get_api_url('items/?list='+list_id)
-        response = requests.get(endpoint)
-        data = response.json()
-        user_id = data['results'][0]['user']['id']
-        list_name = data['results'][0]['list']['title']
+    #if not list_name:
+        #list_name = "To Do"
         
-    last_url = "/profile/"+user_id
-    last_view = "/profile-view/"+user_id
+        #endpoint = get_api_url('items/?list='+list_id)
+        #response = requests.get(endpoint)
+        #data = response.json()
+        #user_id = data['results'][0]['user']['id']
+        #list_name = data['results'][0]['list']['title']
+    
+    last_url = ""
+    last_view = ""
+        
+    if user_id:
+        last_url = "/profile/"+user_id
+        last_view = "/profile-view/"+user_id
+        
+    #to do
     num_links = 0
     
-    return render(request, 'includes/list.html', {'list_id': list_id, 'title': list_name, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id, 'num_links': num_links})
+    return render(request, 'includes/list.html', {'list_id': list_id, 'user_id': user_id, 'title': list_name, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id, 'num_links': num_links})
 
 def item_page_view(request, item_id=""):
     endpoint = get_api_url('items/'+item_id)
@@ -337,6 +362,9 @@ def item_content_view(request):
     
     if not data["imageurl"]:
         data["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
+        
+    if not data["icon"]:
+        data["icon"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
     
     return render(request, 'includes/item_content.html', {'item': data, 'user_id': data["user"]["id"]})
 
