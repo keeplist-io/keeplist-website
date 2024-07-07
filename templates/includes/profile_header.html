@@ -1,5 +1,5 @@
 <div class="flex gap-[var(--space-medium)]">
-    <a hx-get="{% url 'profile_view' %}" hx-replace-url="/profile/{{user.id}}" hx-target="#center-content" hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user.id}}", "user_name":"{{user.name}}"}'>
+    <a hx-get="{% url 'profile_view' %}" hx-push-url="/profile/{{user.id}}" hx-target="#center-content" hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user.id}}", "user_name":"{{user.name}}"}' hx-swap="show:window:top">
         <img class="w-10 h-10 rounded-full" src="{{ user.profile_pic }}">
     </a>
     <div class="grid grid-rows-2 content-between">

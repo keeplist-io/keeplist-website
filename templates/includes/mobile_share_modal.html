@@ -1,0 +1,25 @@
+{% load static %}
+
+<div id="modal" class="share-modal flex flex-col fixed top-0 bottom-0 left-0 right-0 z-50" _="on closeModal add .closing then wait for animationend then remove me">
+	<div class="modal-underlay absolute -z-1 top-0 bottom-0 left-0 right-0" _="on click trigger closeModal"></div>
+	<div class="modal-content absolute bottom-0 left-0 right-0 px-[var(--space-2xlarge)] py-[var(--space-5xlarge)] bg-[color:var(--background-default)] rounded-t-xl">
+        <div class="absolute top-4 right-4 p-[var(--space-xsmall)] cursor-pointer bg-[color:var(--background-surface)] rounded-full" _="on click trigger closeModal"><img src={% static "close.svg" %}></div>
+		<div class="font-300 font-bold mb-[var(--space-large)]">Share profile</div>
+        <div class="flex justify-between font-400 py-[var(--space-medium)] px-[var(--space-xlarge)] mb-[var(--space-4xlarge)] bg-[color:var(--background-surface)] rounded-full">
+            <div class="flex-1 overflow-hidden truncate">{{ profile_url }}</div>
+            <div class="cursor-pointer" _="on click navigator.clipboard.writeText('{{profile_url}}')"><img src={% static "copy.svg" %}></div>
+        </div>
+		<div class="flex flex-col items-center">
+            <img src={% static "logo-square.svg" %}>
+            <p class="font-200 font-bold my-[var(--space-2xlarge)]">
+                Get the Keeplist app
+            </p>
+            <div class="flex mt-[var(--space-large)]">
+                <button class="app-store-button mb-[var(--space-2xlarge)] bg-[color:var(--black)] [&>img]:inline-block">
+                    <img class="mr-[var(--space-medium-small)]" src="{{app_store_image}}">
+                    <img src="{{app_store_text_image}}">
+                </button>
+            </div>
+        </div>
+	</div>
+</div>

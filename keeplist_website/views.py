@@ -10,13 +10,13 @@ def get_api_url(url_ending):
     return "https://dev.keeplist.io/api/v1/"+url_ending
 
 def splash_page_view(request):
-    if request.user_agent.is_mobile or False:
+    if request.user_agent.is_mobile:
         return render(request, 'a_pages/mobile_splash.html')
     
     return render(request, 'a_pages/splash.html')
 
 def mobile_splash_content_view(request):
-    is_iOS = request.user_agent.os.family == "iOS" or False
+    is_iOS = request.user_agent.os.family == "iOS"
     
     if is_iOS:
         app_store_url = ""
@@ -95,6 +95,7 @@ def header_content_view(request):
     last_view = request.GET.get('last_view', "")
     last_url = request.GET.get('last_url', "")
     title = request.GET.get('title', "")
+    print(title)
     num_links = request.GET.get('num_links', 0)
     user_id = request.GET.get('user_id', "")
     list_id = request.GET.get('list_id', "")
@@ -128,6 +129,8 @@ def header_content_view(request):
     return render(request, 'includes/header_content.html', {'header_info': header_info})
 
 def keeplist_preview_view(request):
+    return render(request, 'includes/keeplist_preview_container.html', {})
+    
     user_id = request.GET.get("user_id", "")
     endpoint = get_api_url('lists/?list_type=KP&user='+user_id)
     response = requests.get(endpoint)
@@ -154,16 +157,27 @@ def keeplist_preview_view(request):
     
 def bookmarks_preview_view(request):
     user_id = request.GET.get("user_id", "")
+    #todo: add user_id
     endpoint = get_api_url('lists/?list_type=BK&user='+user_id)
     response = requests.get(endpoint)
     list_data = response.json()
-    bookmarks = []
+    bookmark_lists = []
+    
+    #todo: add user_id
+    endpoint = get_api_url('items/?list_type=BK&page_size=8&user='+user_id)
+    response = requests.get(endpoint)
+    data = response.json()
+    all_bookmarks = data['results']
+    
+    for item in all_bookmarks:
+        if not item["imageurl"]:
+                item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
     
     for list in list_data['results']:
         if len(list['items']) == 0:
             continue
         
-        endpoint = get_api_url('items/?list='+list["id"]+'&page_size=3')
+        endpoint = get_api_url('items/?page_size=4&list='+list["id"])
         response = requests.get(endpoint)
         item_data = response.json()
         
@@ -172,9 +186,75 @@ def bookmarks_preview_view(request):
                 item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
         
         list['items'] = item_data['results']
-        bookmarks.append(list)
+        bookmark_lists.append(list)
+        
+    return render(request, 'includes/bookmarks_preview_container.html', {'all_bookmarks': all_bookmarks, 'bookmark_lists': bookmark_lists, 'user_id': user_id, 'view':'/profile-view/'+user_id, 'url': "/profile/"+user_id})
+
+def bookmarks_list_view(request):
+    list_id = request.GET.get("list_id", "")
+        
+    list_name = request.GET.get("list_name", "")
     
-    return render(request, 'includes/bookmarks_preview_container.html', {'bookmarks': bookmarks, 'user_id': user_id, 'view':'/profile-view/'+user_id, 'url': "/profile/"+user_id})
+    if list_name:
+        request.session['list_name'] = list_name
+        
+    list_name = request.session.get('list_name', '')
+        
+    user_id = request.GET.get("user_id", "")
+    
+    #if not list_name:
+        #list_name = "To Do"
+        
+        #endpoint = get_api_url('items/?list='+list_id)
+        #response = requests.get(endpoint)
+        #data = response.json()
+        #user_id = data['results'][0]['user']['id']
+        #list_name = data['results'][0]['list']['title']
+        
+    endpoint = get_api_url('lists?list_type=BK&user='+user_id)
+    response = requests.get(endpoint)
+    data = response.json()
+    
+    bookmark_categories = []
+    
+    for bk_list in data["results"]:
+        if bk_list["items"]:
+            bookmark_categories.append(bk_list)
+    
+    last_url = ""
+    last_view = ""
+        
+    if user_id:
+        last_url = "/profile/"+user_id
+        last_view = "/profile-view/"+user_id
+    
+    return render(request, 'includes/bookmarks_list.html', {'categories': bookmark_categories, 'user_id': user_id, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id})
+
+def bookmarks_content_view(request):
+    list_id = request.GET.get("list_id", "")
+    
+    endpoint = get_api_url('items/?list='+list_id)
+    response = requests.get(endpoint)
+    data = response.json()
+
+    if (len(data['results']) == 0):
+        return render(request, 'includes/splash_content.html')
+    
+    for item in data['results']:
+            # what default image should be used?
+            if not item["imageurl"]:
+                item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
+              
+            if item["user"]["profile_pic"]:  
+                item["user"]["profile_pic"] = "https://images.keeplist.io/"+item["user"]["profile_pic"]
+    
+    #check for null results, is this the best way to get user and list?
+    user_id = data['results'][0]['user']['id']
+    list_title = data['results'][0]['list']['title']
+    last_view = "/profile-view/"+user_id
+    last_url = "/profile/"+user_id
+    
+    return render(request, 'includes/bookmarks_list_content.html', {'bookmarks': data["results"], 'list_id': list_id, 'user_id': user_id, 'title': list_title, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id})
 
 def get_user(user_id):
     endpoint = get_api_url('users/'+user_id)
@@ -205,6 +285,27 @@ def get_profile_data(session, user_id):
     #todo : when does session expire?
     return session.get("kp_user", get_user(user_id))
 
+def share_modal_view(request):
+    user_id = request.GET.get("user_id", "")
+    profile_url = 'profile/'+user_id
+    
+    if request.user_agent.is_mobile:
+        is_iOS = request.user_agent.os.family == "iOS"
+    
+        if is_iOS:
+            app_store_url = ""
+            app_store_text_image = static("apple-store-text.svg")
+            app_store_image = static("apple-icon.svg")
+        else:
+            app_store_url = ""
+            app_store_text_image = static("google-play-text.svg")
+            app_store_image = static("google-play-icon.svg")
+            view_path = 'includes/mobile_share_modal.html'
+            
+        return render(request, 'includes/mobile_share_modal.html', {'profile_url': profile_url, 'app_store_url': app_store_url, 'app_store_image': app_store_image, 'app_store_text_image': app_store_text_image})
+        
+    return render(request, 'includes/share_modal.html', {'profile_url': profile_url})
+
 def profile_page_view(request, user_id=""):    
     return render(request, 'a_pages/profile.html', {'user_id': user_id})
 
@@ -214,6 +315,12 @@ def profile_view(request, user_id="", user_name=""):
         
     if not user_name:
         user_name = request.GET.get("user_name", "")
+    
+    if not user_name:
+        user_name = request.session.get("user_name", "")
+
+    if user_name:
+        request.session["user_name"] = user_name
 
     #if no user name, fetch it
     if not user_name:
@@ -324,7 +431,7 @@ def item_page_view(request, item_id=""):
     endpoint = get_api_url('items/'+item_id)
     response = requests.get(endpoint)
     data = response.json()
-    print(data)
+    
     list_id = data['list']['id']
     user_id = data['user']['id']
     
@@ -359,12 +466,11 @@ def item_content_view(request):
     response = requests.get(endpoint)
     data = response.json()
     
-    if not data["imageurl"]:
+    if not data.get("imageurl", ""):
         data["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
     
-    #it's not "icon" anymore
-    #if not data["icon"]:
-    #    data["icon"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
+    if not data.get("icon", ""):
+        data["icon"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
     
     return render(request, 'includes/item_content.html', {'item': data, 'user_id': data["user"]["id"]})
 

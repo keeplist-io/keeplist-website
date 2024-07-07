@@ -36,6 +36,8 @@ urlpatterns = [
     path('mobile-splash-content-view/', mobile_splash_content_view, name="mobile_splash_content_view"),
     path('keeplist-preview-view/', keeplist_preview_view, name="keeplist_preview_view"),
     path('bookmarks-preview-view/', bookmarks_preview_view, name="bookmarks_preview_view"),
+    path('bookmarks-list-view/', bookmarks_list_view, name="bookmarks_list_view"),
+    path('bookmarks-content-view/', bookmarks_content_view, name="bookmarks_content_view"),
     path('list-view/', list_view, name="list_view"),
     path('list-view/<str:list_id>', list_view),
     path('list-content-view/', list_content_view, name="list_content_view"),
@@ -48,4 +50,5 @@ urlpatterns = [
     path('profile-view/<str:user_id>', profile_view),
     path('profile-content-view/', profile_content_view, name="profile_content_view"),
     path('profile-header-view/', profile_header_view, name="profile_header_view"),
+    path('share-modal-view/', share_modal_view, name="share_modal_view"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1,0 +1,28 @@
+{% load static %}
+
+<div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"title": "Bookmarks", "list_id":"{{list_id}}", "user_id":"{{user_id}}", "last_view":"{{last_view}}", "last_url":"{{last_url}}"}' hx-trigger="load"></div>
+
+<div class="flex items-center justify-center">
+    <div class="main-content main-content-lg sm:rounded-md list-content flex flex-col mb-2 sm:my-4 p-8 bg-[color:var(--background-default)]">
+        <div hx-target="#list-content" class="tab-list mb-[var(--space-large)] border-b border-[color:var(--border-normal)] [&>button]:p-2 [&>button]:rounded-none" role="tablist"
+            hx-on:htmx-trigger="let currentTab = document.querySelector('[aria-selected=true]');
+                        currentTab.setAttribute('aria-selected', 'false')
+                        currentTab.classList.remove('selected')
+                        let newTab = event.target
+                        newTab.setAttribute('aria-selected', 'true')
+                        newTab.classList.add('selected')
+                        document.getElementById('list-loading-indicator').style.display = 'flex'"
+            hx-on:htmx-after-on-load="document.getElementById('list-loading-indicator').style.display = 'none'">
+            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"list_id": "{{list_id}}", "list_name":"{{title}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="inline-block selected border-none relative inset-y-px active:[color:var(--action-inverted-pressed)] selected" role="tab" aria-selected="true" aria-controls="tab-content">All</button>
+            {% for category in categories %}
+            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"list_id": "{{category.id}}", "list_name":"{{category.title}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="inline-block relative inset-y-px active:[color:var(--action-inverted-pressed)]" role="tab" aria-selected="false" aria-controls="tab-content">{{category.title}}</button>
+            {% endfor %}
+        </div>
+        
+        <div id="list-loading-indicator" class="loading-indicator flex items-center justify-center mt-[var(--space-3xlarge)]">
+            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+        </div>
+        <div id="list-content" hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"list_id": "{{list_id}}", "list_name":"{{title}}"}' hx-trigger="load" hx-on:htmx-after-on-load="document.getElementById('list-loading-indicator').style.display = 'none'" role="tabpanel" class="tab-content px-4 sm:px-0">
+        </div>
+    </div>
+</div>

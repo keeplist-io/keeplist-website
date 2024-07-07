@@ -1,7 +1,7 @@
 <div class="hidden" hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"list_id":"{{list_id}}", "user_id":"{{user_id}}", "last_view":"{{last_view}}", "last_url":"{{last_url}}", "title": "{{title}}", "num_links": {{num_links}}}' hx-trigger="load"></div>
 
 {% for item in results %}
-    <a hx-get="{% url 'item_view' %}" hx-replace-url="/item/{{item.id}}" hx-target="#center-content" hx-vals='{"item_id":"{{item.id}}", "list_id":"{{list_id}}", "user_id":"{{user_id}}", "last_url":"{{url}}", "last_view":"{{view}}"}'>
+    <a hx-get="{% url 'item_view' %}" hx-push-url="/item/{{item.id}}" hx-target="#center-content" hx-vals='{"item_id":"{{item.id}}", "list_id":"{{list_id}}", "user_id":"{{user_id}}", "last_url":"{{url}}", "last_view":"{{view}}"}' hx-swap="show:window:top">
         <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
         <div class="pt-[var(--space-medium)] font-500 font-bold line-clamp-2">
             {{ item.title }}
