@@ -15,8 +15,10 @@
             <div>{{ user.following|length }} following</div>
         </div>
     </div>
-    <div class="social-media-container py-[var(--space-2xlarge)]">
-
+    <div class="flex gap-[var(--space-large)] social-media-container py-[var(--space-2xlarge)]">
+        {% for social in socials %}
+        <img src="{{ social.icon }}">
+        {% endfor %}
     </div>
     <div class="share-container">
         <button hx-get="{% url 'share_modal_view' %}" hx-target="body" hx-swap="beforeend" class="font-500 font-bold px-4 py-2 [color:var(--content-inverted-primary)] bg-[color:var(--action-primary-normal)]">Share Profile</button>

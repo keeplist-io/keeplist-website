@@ -95,7 +95,6 @@ def header_content_view(request):
     last_view = request.GET.get('last_view', "")
     last_url = request.GET.get('last_url', "")
     title = request.GET.get('title', "")
-    print(title)
     num_links = request.GET.get('num_links', 0)
     user_id = request.GET.get('user_id', "")
     list_id = request.GET.get('list_id', "")
@@ -129,7 +128,7 @@ def header_content_view(request):
     return render(request, 'includes/header_content.html', {'header_info': header_info})
 
 def keeplist_preview_view(request):
-    return render(request, 'includes/keeplist_preview_container.html', {})
+    #return render(request, 'includes/keeplist_preview_container.html', {})
     
     user_id = request.GET.get("user_id", "")
     endpoint = get_api_url('lists/?list_type=KP&user='+user_id)
@@ -266,7 +265,6 @@ def get_user(user_id):
         return None
 
 def get_profile_data(session, user_id):
-    #sessions aren't working ATM
     session_user_id = session.get("kp_user_id", user_id)
     session_user = session.get("kp_user", get_user(user_id))
     
@@ -309,29 +307,18 @@ def share_modal_view(request):
 def profile_page_view(request, user_id=""):    
     return render(request, 'a_pages/profile.html', {'user_id': user_id})
 
-def profile_view(request, user_id="", user_name=""):
+def profile_view(request, user_id=""):
     if not user_id:
         user_id = request.GET.get("user_id", "")
-        
-    if not user_name:
-        user_name = request.GET.get("user_name", "")
     
-    if not user_name:
-        user_name = request.session.get("user_name", "")
-
-    if user_name:
-        request.session["user_name"] = user_name
-
-    #if no user name, fetch it
-    if not user_name:
-        user = get_profile_data(request.session, user_id)
+    user = get_profile_data(request.session, user_id)
         
-        if not user:
-            # need this to go to profile page not load the profile splash view within this view
-            response = redirect('/')
-            return response
+    if not user:
+        # need this to go to profile page not load the profile splash view within this view
+        response = redirect('/')
+        return response
             
-        user_name = user.get("name", "")
+    user_name = user.get("username", "")
     
     return render(request, 'includes/profile.html', {'user_id': user_id, 'user_name': user_name})
 
@@ -341,7 +328,24 @@ def profile_content_view(request, user_id=""):
         
     user = get_profile_data(request.session, user_id)
     
-    return render(request, 'includes/profile_content.html', {'user': user})
+    socials = []
+        
+    if user["metadata"]["twitter"] or True:
+        socials.append({'icon':static("twitter.svg")})
+    
+    if user["metadata"]["facebook"] or True:
+        socials.append({'icon':static("facebook.svg")})
+        
+    if user["metadata"]["instagram"] or True:
+        socials.append({'icon':static("instagram.svg")})
+        
+    if user["metadata"]["tiktok"] or True:
+        socials.append({'icon':static("tiktok.svg")})
+        
+    if user["metadata"]["youtube"] or True:
+        socials.append({'icon':static("youtube.svg")})
+    
+    return render(request, 'includes/profile_content.html', {'user': user, 'socials': socials})
 
 def profile_header_view(request, user_id=""):
     if not user_id:
