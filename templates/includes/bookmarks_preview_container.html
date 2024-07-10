@@ -1,8 +1,10 @@
 {% load static %}
 
 <div class="{% if bookmarks|length > forloop.counter %} mb-[var(--space-2xlarge)]{% endif %}">
-    <div hx-get="{% url 'bookmarks_list_view' %}" hx-push-url="/list/{{list.id}}" hx-target="#center-content" hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user_id}}"}' hx-swap="show:window:top" 
-         class="grid grid-cols-4 grid-rows-2 gap-px mt-[var(--space-2xlarge)] mb-[var(--space-medium)] overflow-hidden rounded-xl cursor-pointer">
+    <div hx-get="{% url 'bookmarks_list_view' %}" hx-push-url="/list/{{list.id}}" hx-target="#center-content"
+        hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user_id}}"}' hx-swap="show:window:top"
+        hx-on:htmx-trigger="document.querySelector('#header-title').innerHTML = '';"
+        class="grid grid-cols-4 grid-rows-2 gap-px mt-[var(--space-2xlarge)] mb-[var(--space-medium)] overflow-hidden rounded-xl cursor-pointer">
         {% for item in all_bookmarks %}
             <img class="aspect-square object-cover" src="{{ item.imageurl }}">
         {% endfor %}
@@ -11,7 +13,9 @@
     
     <div class="grid grid-cols-2 gap-y-4 gap-x-4 sm:gap-x-12 pt-[var(--space-large)]">
         {% for list in bookmark_lists %}
-        <div hx-get="{% url 'bookmarks_list_view' %}" hx-push-url="/list/{{list.id}}" hx-target="#center-content" hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user_id}}"}' hx-swap="show:window:top"
+        <div hx-get="{% url 'bookmarks_list_view' %}" hx-push-url="/list/{{list.id}}" hx-target="#center-content"
+            hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user_id}}"}' hx-swap="show:window:top"
+            hx-on:htmx-trigger="document.querySelector('#header-title').innerHTML = '';"
              class="cursor-pointer">
             <div class="grid grid-cols-2 grid-rows-2 gap-px overflow-hidden rounded-xl">
                 {% for item in list.items %}

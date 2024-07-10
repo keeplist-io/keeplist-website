@@ -264,24 +264,29 @@ def get_user(user_id):
     except:
         return None
 
-def get_profile_data(session, user_id):
+def get_profile_data(session, user_id, call_db=False):
     session_user_id = session.get("kp_user_id", user_id)
-    session_user = session.get("kp_user", get_user(user_id))
     
     if session_user_id != user_id:
         session["kp_user_id"] = user_id
-        user = get_user(user_id)
+        
+        if call_db:
+            user = get_user(user_id)
+                    
+            if not user['profile_pic']:
+                #todo: default pic
+                user['profile_pic'] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
                 
-        if not user['profile_pic']:
-            user['profile_pic'] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
-            
-        session["kp_user"] = user
+            session["kp_user"] = user
         
     #is this needed?
     session.modified = True
     
     #todo : when does session expire?
-    return session.get("kp_user", get_user(user_id))
+    if call_db:
+        return session.get("kp_user", get_user(user_id))
+
+    return session.get("kp_user", {})
 
 def share_modal_view(request):
     user_id = request.GET.get("user_id", "")
@@ -313,12 +318,15 @@ def profile_view(request, user_id=""):
     
     user = get_profile_data(request.session, user_id)
         
-    if not user:
+    #if not user:
         # need this to go to profile page not load the profile splash view within this view
-        response = redirect('/')
-        return response
+        #response = redirect('/')
+        #return response
             
-    user_name = user.get("username", "")
+    user_name = ""
+    
+    if user:
+        user_name = user.get("username", "")
     
     return render(request, 'includes/profile.html', {'user_id': user_id, 'user_name': user_name})
 
@@ -326,24 +334,27 @@ def profile_content_view(request, user_id=""):
     if not user_id:
         user_id = request.GET.get("user_id", "")
         
-    user = get_profile_data(request.session, user_id)
+    user = get_profile_data(request.session, user_id, call_db=True)
     
     socials = []
-        
-    if user["metadata"]["twitter"] or True:
-        socials.append({'icon':static("twitter.svg")})
     
-    if user["metadata"]["facebook"] or True:
-        socials.append({'icon':static("facebook.svg")})
+    for social in user.get("metadata", {}).get("socials", []):
+        social_key = social.get("key", "")
         
-    if user["metadata"]["instagram"] or True:
-        socials.append({'icon':static("instagram.svg")})
+        if social_key == "twitter":
+            socials.append({'icon':static("twitter.svg")})
         
-    if user["metadata"]["tiktok"] or True:
-        socials.append({'icon':static("tiktok.svg")})
-        
-    if user["metadata"]["youtube"] or True:
-        socials.append({'icon':static("youtube.svg")})
+        if social_key == "facebook":
+            socials.append({'icon':static("facebook.svg")})
+            
+        if social_key == "instagram":
+            socials.append({'icon':static("instagram.svg")})
+            
+        if social_key == "tiktok":
+            socials.append({'icon':static("tiktok.svg")})
+            
+        if social_key == "youtube":
+            socials.append({'icon':static("youtube.svg")})
     
     return render(request, 'includes/profile_content.html', {'user': user, 'socials': socials})
 
@@ -351,7 +362,7 @@ def profile_header_view(request, user_id=""):
     if not user_id:
         user_id = request.GET.get("user_id", "")
     
-    user = get_profile_data(request.session, user_id)
+    user = get_profile_data(request.session, user_id, call_db=True)
     #to do: only pass the data props that are needed
     return render(request, 'includes/profile_header.html', {'user': user})
 

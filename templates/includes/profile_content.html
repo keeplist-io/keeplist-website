@@ -1,5 +1,7 @@
 {% load static %}
-   
+  
+<div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"title":"{{user.username}}"}' hx-trigger="load"></div>
+
 <div class="w-full px-12 py-4 flex flex-col items-center">    
     <div class="inline-flex flex-col items-center">
         <div><img class="w-20 h-20 rounded-full" src="{{ user.profile_pic }}"></div>
@@ -17,7 +19,7 @@
     </div>
     <div class="flex gap-[var(--space-large)] social-media-container py-[var(--space-2xlarge)]">
         {% for social in socials %}
-        <img src="{{ social.icon }}">
+        <img class="cursor-pointer" src="{{ social.icon }}">
         {% endfor %}
     </div>
     <div class="share-container">
