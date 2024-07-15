@@ -291,6 +291,7 @@ def get_profile_data(session, user_id, call_db=False):
 def share_modal_view(request):
     user_id = request.GET.get("user_id", "")
     profile_url = 'profile/'+user_id
+    full_profile_url = 'https://keeplist.io/' + profile_url
     
     if request.user_agent.is_mobile:
         is_iOS = request.user_agent.os.family == "iOS"
@@ -307,7 +308,7 @@ def share_modal_view(request):
             
         return render(request, 'includes/mobile_share_modal.html', {'profile_url': profile_url, 'app_store_url': app_store_url, 'app_store_image': app_store_image, 'app_store_text_image': app_store_text_image})
         
-    return render(request, 'includes/share_modal.html', {'profile_url': profile_url})
+    return render(request, 'includes/share_modal.html', {'profile_url': profile_url, 'full_profile_url': full_profile_url})
 
 def profile_page_view(request, user_id=""):    
     return render(request, 'a_pages/profile.html', {'user_id': user_id})
