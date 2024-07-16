@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    {% include 'includes/header.html ' %}
+    {% include 'includes/header.html' %}
 
     <main id="center-content" class="bg-[color:var(--background-surface)]">
         <div hx-get="{% url 'profile_view' %}" hx-vals='{"user_id": "{{user_id}}"}' hx-trigger="load"></div>
