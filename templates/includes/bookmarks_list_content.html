@@ -3,7 +3,7 @@
 <div class="flex flex-col">
     {% for item in bookmarks %}
         <div class="flex my-[var(--space-small)] cursor-pointer" hx-get="{% url 'item_view' %}" hx-push-url="/item/{{item.id}}" hx-target="#center-content"
-            hx-vals='{"item_id":"{{item.id}}", "list_id":"{{list_id}}", "user_id":"{{user_id}}", "last_url":"{{url}}", "last_view":"{{view}}"}'
+            hx-vals='{"item_id":"{{item.id}}", "list_id":"{{list_id}}", "user_id":"{{item.user.id}}", "bookmark_owner_id": "{{user_id}}", "last_url":"{{url}}", "last_view":"{{view}}"}'
             hx-swap="show:window:top" hx-on:htmx-trigger="document.querySelector('#header-title').innerHTML = '';">
             <img class="h-20 w-20 mr-[var(--space-large)] aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
             <div class="flex flex-col justify-center">
@@ -14,12 +14,9 @@
                     <img class="w-5 h-5 mr-[var(--space-small)] rounded-full" src="{{ item.user.profile_pic }}">
                     <div class="flex-grow font-600 align-middle">
                         <span>{{ item.user.username }}</span>
-                        {% if item.user.id == user_id %}
-                        <span class="ml-[var(--space-small)] px-[var(--space-small)] bg-[color:var(--background-subtle)] rounded-xl">You</span>
-                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     {% endfor %}
-    </div>
+</div>

@@ -97,6 +97,7 @@ def header_content_view(request):
     title = request.GET.get('title', "")
     num_links = request.GET.get('num_links', 0)
     user_id = request.GET.get('user_id', "")
+    bookmark_owner_id = request.GET.get('bookmark_owner_id', "")
     list_id = request.GET.get('list_id', "")
     subtitle = ""
     
@@ -121,6 +122,9 @@ def header_content_view(request):
     
     if user_id:
         header_info["hx_vals"]["user_id"] = user_id
+        
+    if bookmark_owner_id:
+        header_info["hx_vals"]["bookmark_owner_id"] = bookmark_owner_id
         
     if list_id:
         header_info["hx_vals"]["list_id"] = list_id
@@ -162,7 +166,6 @@ def bookmarks_preview_view(request):
     list_data = response.json()
     bookmark_lists = []
     
-    #todo: add user_id
     endpoint = get_api_url('items/?list_type=BK&page_size=8&user='+user_id)
     response = requests.get(endpoint)
     data = response.json()
@@ -170,7 +173,7 @@ def bookmarks_preview_view(request):
     
     for item in all_bookmarks:
         if not item["imageurl"]:
-                item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
+            item["imageurl"] = item["ref_relation"]["imageurl"]
     
     for list in list_data['results']:
         if len(list['items']) == 0:
@@ -189,7 +192,10 @@ def bookmarks_preview_view(request):
         
     return render(request, 'includes/bookmarks_preview_container.html', {'all_bookmarks': all_bookmarks, 'bookmark_lists': bookmark_lists, 'user_id': user_id, 'view':'/profile-view/'+user_id, 'url': "/profile/"+user_id})
 
-def bookmarks_list_view(request):
+def bookmarks_page_view(request, user_id = ""):
+    return render(request, 'a_pages/bookmarks.html', {'user_id': user_id})
+
+def bookmarks_list_view(request, user_id = ""):
     list_id = request.GET.get("list_id", "")
         
     list_name = request.GET.get("list_name", "")
@@ -199,7 +205,13 @@ def bookmarks_list_view(request):
         
     list_name = request.session.get('list_name', '')
         
-    user_id = request.GET.get("user_id", "")
+    if not user_id:
+        user_id = request.GET.get("user_id", "")
+        
+    bookmark_owner_id = request.GET.get("bookmark_owner_id", "")
+    
+    if bookmark_owner_id:
+        user_id = bookmark_owner_id
     
     #if not list_name:
         #list_name = "To Do"
@@ -227,33 +239,53 @@ def bookmarks_list_view(request):
         last_url = "/profile/"+user_id
         last_view = "/profile-view/"+user_id
     
-    return render(request, 'includes/bookmarks_list.html', {'categories': bookmark_categories, 'user_id': user_id, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id})
+    return render(request, 'includes/bookmarks_list.html', {'categories': bookmark_categories, 'user_id': user_id, 'list_id': list_id, 'last_url': last_url, 'last_view': last_view, 'view': '/bookmarks-list-view/'+user_id, 'url': "/bookmarks/"+user_id})
 
 def bookmarks_content_view(request):
     list_id = request.GET.get("list_id", "")
+    user_id = request.GET.get("user_id", "")
     
-    endpoint = get_api_url('items/?list='+list_id)
-    response = requests.get(endpoint)
-    data = response.json()
-
-    if (len(data['results']) == 0):
-        return render(request, 'includes/splash_content.html')
-    
-    for item in data['results']:
-            # what default image should be used?
+    # if no list id, then get all bookmarks
+    if not list_id:
+        endpoint = get_api_url('items/?list_type=BK&user='+user_id)
+        response = requests.get(endpoint)
+        data = response.json()
+        bookmarks = data['results']
+        
+        for item in bookmarks:
             if not item["imageurl"]:
-                item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
-              
-            if item["user"]["profile_pic"]:  
+                item["imageurl"] = item["ref_relation"]["imageurl"]
+                                   
+            if item["ref_relation"]:
+                item["title"] = item["ref_relation"]["title"]
+                
+                user_ref = item["ref_relation"]["user"]
+                item["user"]["id"] = user_ref["id"]
+                item["user"]["profile_pic"] = "https://images.keeplist.io/"+user_ref["profile_pic"]
+                item["user"]["username"] = user_ref["username"]
+            else:  
                 item["user"]["profile_pic"] = "https://images.keeplist.io/"+item["user"]["profile_pic"]
+                item["user"]["username"] = item["user"]["username"]
+    else:
+        endpoint = get_api_url('items/?list='+list_id)
+        response = requests.get(endpoint)
+        data = response.json()
+        bookmarks = data['results']
+
+        for item in bookmarks:
+                # what default image should be used?
+                if not item["imageurl"]:
+                    item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
+                    
+                if item["user"]["profile_pic"]:  
+                    item["user"]["profile_pic"] = "https://images.keeplist.io/"+item["user"]["profile_pic"]
     
-    #check for null results, is this the best way to get user and list?
-    user_id = data['results'][0]['user']['id']
-    list_title = data['results'][0]['list']['title']
+    #check for null results, is this the best way to get list?
+    list_title = "To Do"
     last_view = "/profile-view/"+user_id
     last_url = "/profile/"+user_id
     
-    return render(request, 'includes/bookmarks_list_content.html', {'bookmarks': data["results"], 'list_id': list_id, 'user_id': user_id, 'title': list_title, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id})
+    return render(request, 'includes/bookmarks_list_content.html', {'bookmarks': data["results"], 'list_id': list_id, 'user_id': user_id, 'title': list_title, 'last_url': last_url, 'last_view': last_view, 'view': '/bookmarks-list-view/'+user_id, 'url': "/bookmarks/"+user_id})
 
 def get_user(user_id):
     endpoint = get_api_url('users/'+user_id)
@@ -448,7 +480,14 @@ def item_page_view(request, item_id=""):
     response = requests.get(endpoint)
     data = response.json()
     
-    list_id = data['list']['id']
+    list_id = ""
+        
+    if data["ref_relation"]:
+        data = data["ref_relation"]
+        
+    if data["list"]:
+        list_id = data['list']['id']
+        
     user_id = data['user']['id']
     
     last_url = "/list/"+list_id
@@ -456,7 +495,7 @@ def item_page_view(request, item_id=""):
     
     return render(request, 'a_pages/item.html', {'item_id': item_id, 'list_id': list_id, 'user_id': user_id, 'last_url': last_url, 'last_view': last_view})
 
-def item_view(request, item_id="", user_id="", list_id="", last_view="", last_url=""):
+def item_view(request, item_id="", user_id="", bookmark_owner_id="", list_id="", last_view="", last_url=""):
     if not item_id:    
         item_id = request.GET.get('item_id', "")
         
@@ -465,6 +504,9 @@ def item_view(request, item_id="", user_id="", list_id="", last_view="", last_ur
         
     if not user_id:    
         user_id = request.GET.get('user_id', "")
+        
+    if not bookmark_owner_id:    
+        bookmark_owner_id = request.GET.get('bookmark_owner_id', "")
     
     if not last_view:
         last_view = request.GET.get("last_view", "")
@@ -472,7 +514,7 @@ def item_view(request, item_id="", user_id="", list_id="", last_view="", last_ur
     if not last_url:
         last_url = request.GET.get("last_url", "")
     
-    return render(request, 'includes/item.html', {'user_id': user_id, 'item_id': item_id, 'list_id': list_id, 'last_url': last_url, 'last_view': last_view})
+    return render(request, 'includes/item.html', {'user_id': user_id, 'bookmark_owner_id': bookmark_owner_id, 'item_id': item_id, 'list_id': list_id, 'last_url': last_url, 'last_view': last_view})
 
 def item_content_view(request):
     item_id = request.GET.get('item_id', "")
@@ -482,11 +524,9 @@ def item_content_view(request):
     response = requests.get(endpoint)
     data = response.json()
     
-    if not data.get("imageurl", ""):
-        data["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
-    
-    if not data.get("icon", ""):
-        data["icon"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
+    #this seems like the best way to do this
+    if data["ref_relation"]:
+        data = data["ref_relation"]
     
     return render(request, 'includes/item_content.html', {'item': data, 'user_id': data["user"]["id"]})
 
@@ -495,15 +535,15 @@ def more_items_view(request):
     item_id = request.GET.get("item_id")
     user_id = request.GET.get("user_id")
     
-    endpoint = get_api_url('items/?list='+list_id)
+    endpoint = get_api_url('items/?user='+user_id)
     response = requests.get(endpoint)
     data = response.json()
     user_name = data['results'][0]["user"]["name"]
     items = []
     
     for item in data['results']:
-            if not item["imageurl"]:
-                item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
+            if item["ref_relation"]:
+                item = item["ref_relation"]            
                 
             if item["id"] != item_id:
                 items.append(item)
@@ -513,8 +553,8 @@ def more_items_view(request):
     #check for null results, is this the best way to get user and list?
     #user_id = data['results'][0]['user']['id']
     #list_title = data['results'][0]['list']['title']
-    last_view = "/list-view/"+list_id
-    last_url = "/list/"+list_id
+    last_view = "/item-view/"+item_id
+    last_url = "/item/"+item_id
     
     return render(request, 'includes/more_items.html', {'results': items, 'list_id': list_id, 'user_id': user_id, 'user_name': user_name, 'last_url': last_url, 'last_view': last_view})
 

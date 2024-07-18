@@ -1,6 +1,6 @@
 {% load static %}
 
-<div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"list_id":"{{list_id}}", "user_id":"{{user_id}}", "last_view":"{{last_view}}", "last_url":"{{last_url}}"}' hx-trigger="load"></div>
+<div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"list_id":"{{list_id}}", "user_id":"{{user_id}}", "bookmark_owner_id": "{{bookmark_owner_id}}", "last_view":"{{last_view}}", "last_url":"{{last_url}}"}' hx-trigger="load"></div>
 
 <div class="flex flex-col items-center justify-center">
     <div class="main-content main-content-md sm:rounded-md item-content flex flex-col mb-2 p-[var(--space-3xlarge)] bg-[color:var(--background-default)]">

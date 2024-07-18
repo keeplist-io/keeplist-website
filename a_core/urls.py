@@ -29,6 +29,7 @@ urlpatterns = [
     
     path('profile/<str:user_id>/', profile_page_view),
     path('list/<str:list_id>/', list_page_view),
+    path('bookmarks/<str:user_id>/', bookmarks_page_view),
     path('item/<str:item_id>/', item_page_view),
     
     path('menu-view/', menu_view, name="menu_view"),
@@ -37,6 +38,7 @@ urlpatterns = [
     path('keeplist-preview-view/', keeplist_preview_view, name="keeplist_preview_view"),
     path('bookmarks-preview-view/', bookmarks_preview_view, name="bookmarks_preview_view"),
     path('bookmarks-list-view/', bookmarks_list_view, name="bookmarks_list_view"),
+    path('bookmarks-list-view/<str:user_id>', bookmarks_list_view, name="bookmarks_list_view"),
     path('bookmarks-content-view/', bookmarks_content_view, name="bookmarks_content_view"),
     path('list-view/', list_view, name="list_view"),
     path('list-view/<str:list_id>', list_view),
