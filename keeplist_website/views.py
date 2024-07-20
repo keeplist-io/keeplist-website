@@ -212,15 +212,6 @@ def bookmarks_list_view(request, user_id = ""):
     
     if bookmark_owner_id:
         user_id = bookmark_owner_id
-    
-    #if not list_name:
-        #list_name = "To Do"
-        
-        #endpoint = get_api_url('items/?list='+list_id)
-        #response = requests.get(endpoint)
-        #data = response.json()
-        #user_id = data['results'][0]['user']['id']
-        #list_name = data['results'][0]['list']['title']
         
     endpoint = get_api_url('lists?list_type=BK&user='+user_id)
     response = requests.get(endpoint)

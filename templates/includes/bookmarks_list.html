@@ -13,9 +13,9 @@
                         newTab.classList.add('selected')
                         document.getElementById('list-loading-indicator').style.display = 'flex'"
             hx-on:htmx-after-on-load="document.getElementById('list-loading-indicator').style.display = 'none'">
-            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"user_id": "{{user_id}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="inline-block selected border-none relative inset-y-px active:[color:var(--action-inverted-pressed)] selected" role="tab" aria-selected="true" aria-controls="tab-content">All</button>
+            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"user_id": "{{user_id}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="inline-block border-none relative inset-y-px active:[color:var(--action-inverted-pressed)] {% if list_id == '' %}selected{% endif %}" role="tab" aria-selected="{% if list_id == '' %}true{% else %}false{% endif %}" aria-controls="tab-content">All</button>
             {% for category in categories %}
-            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"list_id": "{{category.id}}", "list_name":"{{category.title}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="inline-block relative inset-y-px active:[color:var(--action-inverted-pressed)]" role="tab" aria-selected="false" aria-controls="tab-content">{{category.title}}</button>
+            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"list_id": "{{category.id}}", "list_name":"{{category.title}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="inline-block relative inset-y-px active:[color:var(--action-inverted-pressed)] {% if category.id == list_id %}selected{% endif %}" role="tab" aria-selected="{% if category.id == list_id %}true{% else %}false{% endif %}" aria-controls="tab-content">{{category.title}}</button>
             {% endfor %}
         </div>
         
