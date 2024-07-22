@@ -3,7 +3,7 @@
 <div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"title": "Bookmarks", "list_id":"{{list_id}}", "user_id":"{{user_id}}", "last_view":"{{last_view}}", "last_url":"{{last_url}}"}' hx-trigger="load"></div>
 
 <div class="flex items-center justify-center">
-    <div class="main-content main-content-lg sm:rounded-md list-content flex flex-col mb-2 sm:my-4 p-8 bg-[color:var(--background-default)]">
+    <div class="main-content main-content-lg sm:rounded-md list-content flex flex-col mb-2 sm:my-4 px-[var(--space-large)] pt-0 sm:p-8 bg-[color:var(--background-default)]">
         <div hx-target="#list-content" class="tab-list mb-[var(--space-large)] border-b border-[color:var(--border-normal)] [&>button]:p-2 [&>button]:rounded-none" role="tablist"
             hx-on:htmx-trigger="let currentTab = document.querySelector('[aria-selected=true]');
                         currentTab.setAttribute('aria-selected', 'false')
@@ -22,7 +22,7 @@
         <div id="list-loading-indicator" class="loading-indicator flex items-center justify-center mt-[var(--space-3xlarge)]">
             <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
         </div>
-        <div id="list-content" hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"user_id": "{{user_id}}", "list_id": "{{list_id}}"}' hx-trigger="load" hx-on:htmx-after-on-load="document.getElementById('list-loading-indicator').style.display = 'none'" role="tabpanel" class="tab-content px-4 sm:px-0">
+        <div id="list-content" hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"user_id": "{{user_id}}", "list_id": "{{list_id}}"}' hx-trigger="load" hx-on:htmx-after-on-load="document.getElementById('list-loading-indicator').style.display = 'none'" role="tabpanel" class="tab-content px-0">
         </div>
     </div>
 </div>

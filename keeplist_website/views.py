@@ -5,6 +5,7 @@ from .models import *
 from django.templatetags.static import static
 from django.shortcuts import redirect
 from urllib.parse import urlparse
+from datetime import datetime
 
 def get_api_url(url_ending):
     return "https://dev.keeplist.io/api/v1/"+url_ending
@@ -382,14 +383,6 @@ def profile_content_view(request, user_id=""):
     
     return render(request, 'includes/profile_content.html', {'user': user, 'socials': socials})
 
-def profile_header_view(request, user_id=""):
-    if not user_id:
-        user_id = request.GET.get("user_id", "")
-    
-    user = get_profile_data(request.session, user_id, call_db=True)
-    #to do: only pass the data props that are needed
-    return render(request, 'includes/profile_header.html', {'user': user})
-
 def list_page_view(request, list_id=""):
     endpoint = get_api_url('items/?list='+list_id)
     response = requests.get(endpoint)
@@ -507,7 +500,7 @@ def item_view(request, item_id="", user_id="", bookmark_owner_id="", list_id="",
     
     return render(request, 'includes/item.html', {'user_id': user_id, 'bookmark_owner_id': bookmark_owner_id, 'item_id': item_id, 'list_id': list_id, 'last_url': last_url, 'last_view': last_view})
 
-def item_content_view(request):
+def item_content_view(request):    
     item_id = request.GET.get('item_id', "")
     #last_view = request.GET.get("last_view", "")
     #last_url = request.GET.get("last_url", "")
@@ -518,8 +511,14 @@ def item_content_view(request):
     #this seems like the best way to do this
     if data["ref_relation"]:
         data = data["ref_relation"]
+        
+    data["user"]["profile_pic"] = "https://images.keeplist.io/"+data["user"]["profile_pic"]
     
-    return render(request, 'includes/item_content.html', {'item': data, 'user_id': data["user"]["id"]})
+    #print(datetime.now())
+    #print(datetime.now().date)
+    #created = datetime.now() - datetime.strptime(data["created"], '%m/%d/%y %H:%M:%S')
+    
+    return render(request, 'includes/item_content.html', {'item': data, 'user': data["user"]})
 
 def more_items_view(request):
     list_id = request.GET.get("list_id")

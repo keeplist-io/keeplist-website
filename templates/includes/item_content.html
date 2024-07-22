@@ -1,5 +1,16 @@
 {% load static %}
 
+<div class="min-h-10 mb-[var(--space-medium)]">
+        <div class="flex gap-[var(--space-medium)]">
+                <a hx-get="{% url 'profile_view' %}" hx-push-url="/profile/{{user.id}}" hx-target="#center-content" hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user.id}}", "user_name":"{{user.name}}"}' hx-swap="show:window:top">
+                        <img class="w-10 h-10 rounded-full" src="{{ user.profile_pic }}">
+                </a>
+                <div class="grid grid-rows-2 content-between">
+                        <div class="font-500 font-bold">{{ user.name }}</div>
+                        <div class="flex font-600 [color:var(--content-tertiary)]"><span class="self-end">{{ created }}</span></div>
+                </div>
+        </div>
+</div>
 <div class="font-500 line-clamp-2 mb-[var(--space-medium)]">{{ item.title }}</div>
 <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
 <div class="flex items-center w-full mt-[var(--space-small)] px-[var(--space-small)] bg-[color:var(--action-secondary-normal)] rounded-lg cursor-pointer" hx-get="/item-page" hx-target="#center-content" hx-vals='{"item_id": "{{ item.id }}"}'>

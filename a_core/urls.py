@@ -51,6 +51,5 @@ urlpatterns = [
     path('profile-view/', profile_view, name="profile_view"),
     path('profile-view/<str:user_id>', profile_view),
     path('profile-content-view/', profile_content_view, name="profile_content_view"),
-    path('profile-header-view/', profile_header_view, name="profile_header_view"),
     path('share-modal-view/', share_modal_view, name="share_modal_view"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
