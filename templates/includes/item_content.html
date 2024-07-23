@@ -1,20 +1,36 @@
 {% load static %}
 
-<div class="min-h-10 mb-[var(--space-medium)]">
-        <div class="flex gap-[var(--space-medium)]">
-                <a hx-get="{% url 'profile_view' %}" hx-push-url="/profile/{{user.id}}" hx-target="#center-content" hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user.id}}", "user_name":"{{user.name}}"}' hx-swap="show:window:top">
-                        <img class="w-10 h-10 rounded-full" src="{{ user.profile_pic }}">
-                </a>
-                <div class="grid grid-rows-2 content-between">
-                        <div class="font-500 font-bold">{{ user.name }}</div>
-                        <div class="flex font-600 [color:var(--content-tertiary)]"><span class="self-end">{{ created }}</span></div>
+<div class="main-content main-content-md sm:rounded-md item-content flex flex-col mb-2 p-[var(--space-3xlarge)] bg-[color:var(--background-default)]">
+        <div class="min-h-10 mb-[var(--space-medium)]">
+                <div class="flex gap-[var(--space-medium)]">
+                        <a hx-get="{% url 'profile_view' %}" hx-push-url="/profile/{{user.id}}" hx-target="#center-content" hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user.id}}", "user_name":"{{user.name}}"}' hx-swap="show:window:top">
+                                <img class="w-10 h-10 rounded-full" src="{{ user.profile_pic }}">
+                        </a>
+                        <div class="grid grid-rows-2 content-between">
+                                <div class="font-500 font-bold">{{ user.name }}</div>
+                                <div class="flex font-600 [color:var(--content-tertiary)]"><span class="self-end">{{ created }}</span></div>
+                        </div>
                 </div>
         </div>
+        <div class="font-500 line-clamp-2 mb-[var(--space-medium)]">{{ item.title }}</div>
+        <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
+        <div class="flex items-center w-full mt-[var(--space-small)] px-[var(--space-small)] bg-[color:var(--action-secondary-normal)] rounded-lg cursor-pointer" hx-get="/item-page" hx-target="#center-content" hx-vals='{"item_id": "{{ item.id }}"}'>
+                <img class="grow-0 h-6 w-6" src="{{ item.icon }}">
+                <span class="grow-1 w-full mx-[var(--space-large)] my-[var(--space-small)] font-500 font-bold line-clamp-2">{{ item.title }}</span>
+                <img class="grow-0 h-6 w-6" src={% static "chevron-compact-right.svg" %}>
+        </div>
 </div>
-<div class="font-500 line-clamp-2 mb-[var(--space-medium)]">{{ item.title }}</div>
-<img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
-<div class="flex items-center w-full mt-[var(--space-small)] px-[var(--space-small)] bg-[color:var(--action-secondary-normal)] rounded-lg cursor-pointer" hx-get="/item-page" hx-target="#center-content" hx-vals='{"item_id": "{{ item.id }}"}'>
-        <img class="grow-0 h-6 w-6" src="{{ item.icon }}">
-        <span class="grow-1 w-full mx-[var(--space-large)] my-[var(--space-small)] font-500 font-bold line-clamp-2">{{ item.title }}</span>
-        <img class="grow-0 h-6 w-6" src={% static "chevron-compact-right.svg" %}>
+<div class="main-content-md mt-0 sm:rounded-md flex flex-col mb-2 p-[var(--space-3xlarge)] bg-[color:var(--background-default)]">
+        <div class="font-500 font-bold mb-[var(--space-2xlarge)]">More from {{user.name}}</div>
+
+        <div class="grid grid-cols-2 gap-x-4 gap-y-8">
+        {% for item in more_items %}
+                <a hx-get="{% url 'item_view' %}" hx-push-url="/item/{{item.id}}" hx-target="#center-content" hx-vals='{"item_id":"{{item.id}}", "user_id":"{{user_id}}"}' hx-swap="show:window:top">
+                <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
+                <div class="pt-[var(--space-medium)] font-500 font-bold line-clamp-2">
+                        {{ item.title }}
+                </div>
+                </a>
+        {% endfor %}
+        </div>
 </div>

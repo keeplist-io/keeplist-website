@@ -1,10 +1,10 @@
 {% load static %}
 
 <div class="flex relative text-center justify-center align-middle h-full">
-    {% if header_info.hx_vals.last_view %}
+    {% if header_info.is_history %}
     <div class="flex absolute left-0 top-0 bottom-0 align-middle">
-        <button class="" hx-get="{{header_info.hx_vals.last_view}}" hx-push-url="{{header_info.hx_vals.last_url}}" 
-            hx-vals='{{header_info.hx_vals}}' hx-target="#center-content" hx-swap="show:window:top"
+        <button hx-get="{% url 'last_view' %}" hx-push-url="{{header_info.last_url}}" 
+            hx-target="#center-content" hx-swap="show:window:top"
             hx-on:htmx-trigger="document.querySelector('#header-title').innerHTML = '';">
             <picture>
                 <source
@@ -21,7 +21,7 @@
     {% endif %}
     <div id="header-title" class="self-center text-center">
         <span class="block font-400 font-bold">
-            {{ header_info.hx_vals.title }}
+            {{ header_info.title }}
         </span>
         {% if header_info.subtitle %}
         <span class="font-500">

@@ -6,9 +6,38 @@ from django.templatetags.static import static
 from django.shortcuts import redirect
 from urllib.parse import urlparse
 from datetime import datetime
+from django_htmx.http import HttpResponseClientRedirect
+
+def view_404(request, exception=None):
+    return redirect('/')
 
 def get_api_url(url_ending):
     return "https://dev.keeplist.io/api/v1/"+url_ending
+
+def clear_history(request):
+    request.session["history"] = []
+    request.session.modified = True
+    
+def add_to_history(request, url):
+    request.session["history"] = request.session.get("history", [])
+    request.session["history"].append(url)
+    request.session.modified = True
+    
+def last_view(request):
+    history = request.session.get("history", [])
+    
+    if history:
+        last_view = history.pop()
+        
+        if history:
+            last_view = history.pop()
+            
+        request.session.modified = True
+            
+        return redirect(last_view)
+
+    #todo: where to redirect?
+    return render(request, 'includes/profile.html', {'user_id': "default", 'user_name': "Default"})
 
 def splash_page_view(request):
     if request.user_agent.is_mobile:
@@ -52,19 +81,19 @@ def get_menu_items(request):
                     "icon_selected": static("home-filled.svg"),
                     "is_selected": False
                 },
-                { "text": "Search",
+                {   "text": "Search",
                     "url": "/search/",
                     "icon": static("search.svg"),
                     "icon_selected": static("search-filled.svg"),
                     "is_selected": False
                 },
-                { "text": "Notifications",
+                {   "text": "Notifications",
                     "url": "/notifications/",
                     "icon": static("bell.svg"),
                     "icon_selected": static("bell-filled.svg"),
                     "is_selected": False
                 },
-                { "text": "Profile",
+                {   "text": "Profile",
                     "url": "/profile/",
                     "icon": static("user-circle.svg"),
                     "icon_selected": static("user-circle-filled.svg"),
@@ -93,14 +122,13 @@ def menu_view(request):
     return render(request, 'includes/menu.html', {'items': items})
 
 def header_content_view(request):
-    last_view = request.GET.get('last_view', "")
-    last_url = request.GET.get('last_url', "")
-    title = request.GET.get('title', "")
     num_links = request.GET.get('num_links', 0)
-    user_id = request.GET.get('user_id', "")
-    bookmark_owner_id = request.GET.get('bookmark_owner_id', "")
-    list_id = request.GET.get('list_id', "")
     subtitle = ""
+    last_url = ""
+    history = request.session.get("history", [])
+    
+    if len(history) > 1:
+        last_url = history[-2].replace("-view", "", 1) # e.g. turns /profile-view/user_123 into /profile/user_123
     
     if int(num_links) > 1:
         subtitle = f"{num_links} links"
@@ -109,32 +137,14 @@ def header_content_view(request):
     
     header_info = {
         "subtitle": subtitle,
-        "hx_vals": {}
+        "last_url": last_url,
+        "title": request.GET.get('title', ""),
+        "is_history": len(history) > 1
     }
-    
-    if last_url:
-        header_info["hx_vals"]["last_url"] = last_url
-    
-    if last_view:
-        header_info["hx_vals"]["last_view"] = last_view
-    
-    if title:
-        header_info["hx_vals"]["title"] = title
-    
-    if user_id:
-        header_info["hx_vals"]["user_id"] = user_id
-        
-    if bookmark_owner_id:
-        header_info["hx_vals"]["bookmark_owner_id"] = bookmark_owner_id
-        
-    if list_id:
-        header_info["hx_vals"]["list_id"] = list_id
     
     return render(request, 'includes/header_content.html', {'header_info': header_info})
 
-def keeplist_preview_view(request):
-    #return render(request, 'includes/keeplist_preview_container.html', {})
-    
+def keeplist_preview_view(request):    
     user_id = request.GET.get("user_id", "")
     endpoint = get_api_url('lists/?list_type=KP&user='+user_id)
     response = requests.get(endpoint)
@@ -151,17 +161,17 @@ def keeplist_preview_view(request):
         item_data = response.json()
         
         for item in item_data['results']:
-            if not item["imageurl"]:
-                item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
+            # some items have images under imageurl, others under content.file. why?
+            if not item["imageurl"] and item["content"]:
+                item["imageurl"] = item["content"][0]["file"]
         
         list['items'] = item_data['results']
         keeplists.append(list)
     
-    return render(request, 'includes/keeplist_preview_container.html', {'keeplists': keeplists, 'user_id': user_id, 'view':'/profile-view/'+user_id, 'url': "/profile/"+user_id})
+    return render(request, 'includes/keeplist_preview_container.html', {'keeplists': keeplists, 'user_id': user_id})
     
 def bookmarks_preview_view(request):
     user_id = request.GET.get("user_id", "")
-    #todo: add user_id
     endpoint = get_api_url('lists/?list_type=BK&user='+user_id)
     response = requests.get(endpoint)
     list_data = response.json()
@@ -184,21 +194,21 @@ def bookmarks_preview_view(request):
         response = requests.get(endpoint)
         item_data = response.json()
         
-        for item in item_data['results']:
-            if not item["imageurl"]:
-                item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
-        
         list['items'] = item_data['results']
         bookmark_lists.append(list)
         
-    return render(request, 'includes/bookmarks_preview_container.html', {'all_bookmarks': all_bookmarks, 'bookmark_lists': bookmark_lists, 'user_id': user_id, 'view':'/profile-view/'+user_id, 'url': "/profile/"+user_id})
+    return render(request, 'includes/bookmarks_preview_container.html', {'all_bookmarks': all_bookmarks, 'bookmark_lists': bookmark_lists, 'user_id': user_id})
 
 def bookmarks_page_view(request, user_id = ""):
+    if not user_id or user_id == "None":
+        return render(request, 'a_pages/splash.html')
+    
+    clear_history(request)
+    add_to_history(request, "/profile-view/"+user_id)
     return render(request, 'a_pages/bookmarks.html', {'user_id': user_id})
 
-def bookmarks_list_view(request, user_id = ""):
+def bookmarks_view(request, user_id = ""):
     list_id = request.GET.get("list_id", "")
-        
     list_name = request.GET.get("list_name", "")
     
     if list_name:
@@ -214,8 +224,14 @@ def bookmarks_list_view(request, user_id = ""):
     if bookmark_owner_id:
         user_id = bookmark_owner_id
         
-    endpoint = get_api_url('lists?list_type=BK&user='+user_id)
+    add_to_history(request, "/bookmarks-view/"+user_id)
+        
+    endpoint = get_api_url('lists?list_type=BK&user='+user_id)    
     response = requests.get(endpoint)
+    
+    if not response:
+        return HttpResponseClientRedirect("/")
+    
     data = response.json()
     
     bookmark_categories = []
@@ -224,14 +240,7 @@ def bookmarks_list_view(request, user_id = ""):
         if bk_list["items"]:
             bookmark_categories.append(bk_list)
     
-    last_url = ""
-    last_view = ""
-        
-    if user_id:
-        last_url = "/profile/"+user_id
-        last_view = "/profile-view/"+user_id
-    
-    return render(request, 'includes/bookmarks_list.html', {'categories': bookmark_categories, 'user_id': user_id, 'list_id': list_id, 'last_url': last_url, 'last_view': last_view, 'view': '/bookmarks-list-view/'+user_id, 'url': "/bookmarks/"+user_id})
+    return render(request, 'includes/bookmarks.html', {'categories': bookmark_categories, 'user_id': user_id, 'list_id': list_id})
 
 def bookmarks_content_view(request):
     list_id = request.GET.get("list_id", "")
@@ -272,12 +281,7 @@ def bookmarks_content_view(request):
                 if item["user"]["profile_pic"]:  
                     item["user"]["profile_pic"] = "https://images.keeplist.io/"+item["user"]["profile_pic"]
     
-    #check for null results, is this the best way to get list?
-    list_title = "To Do"
-    last_view = "/profile-view/"+user_id
-    last_url = "/profile/"+user_id
-    
-    return render(request, 'includes/bookmarks_list_content.html', {'bookmarks': data["results"], 'list_id': list_id, 'user_id': user_id, 'title': list_title, 'last_url': last_url, 'last_view': last_view, 'view': '/bookmarks-list-view/'+user_id, 'url': "/bookmarks/"+user_id})
+    return render(request, 'includes/bookmarks_content.html', {'bookmarks': data["results"], 'list_id': list_id, 'user_id': user_id})
 
 def get_user(user_id):
     endpoint = get_api_url('users/'+user_id)
@@ -334,19 +338,22 @@ def share_modal_view(request):
         
     return render(request, 'includes/share_modal.html', {'profile_url': profile_url, 'full_profile_url': full_profile_url})
 
-def profile_page_view(request, user_id=""):    
+def profile_page_view(request, user_id=""):
+    if not user_id or user_id == "None":
+        return render(request, 'a_pages/splash.html')
+    
+    clear_history(request)
     return render(request, 'a_pages/profile.html', {'user_id': user_id})
 
 def profile_view(request, user_id=""):
     if not user_id:
         user_id = request.GET.get("user_id", "")
+        
+    add_to_history(request, "/profile-view/"+user_id)
     
     user = get_profile_data(request.session, user_id)
         
-    #if not user:
-        # need this to go to profile page not load the profile splash view within this view
-        #response = redirect('/')
-        #return response
+    #todo: what if user DNE
             
     user_name = ""
     
@@ -360,6 +367,9 @@ def profile_content_view(request, user_id=""):
         user_id = request.GET.get("user_id", "")
         
     user = get_profile_data(request.session, user_id, call_db=True)
+
+    if not user or user.get("error", {}).get("status_code", "") == 404:
+        return HttpResponseClientRedirect("/")
     
     socials = []
     
@@ -384,8 +394,15 @@ def profile_content_view(request, user_id=""):
     return render(request, 'includes/profile_content.html', {'user': user, 'socials': socials})
 
 def list_page_view(request, list_id=""):
+    if not list_id or list_id == "None":
+        return render(request, 'a_pages/splash.html')
+    
     endpoint = get_api_url('items/?list='+list_id)
     response = requests.get(endpoint)
+    
+    if not response:
+        return redirect("/")
+    
     data = response.json()
     
     if (len(data['results']) == 0):
@@ -393,11 +410,12 @@ def list_page_view(request, list_id=""):
     
     user_id = data['results'][0]['user']['id']
     list_title = data['results'][0]['list']['title']
-    last_url = "/profile/"+user_id
-    last_view = "/profile-view/"+user_id
     num_links = len(data["results"])
     
-    return render(request, 'a_pages/list.html', {'user_id': user_id, 'list_id': list_id, 'num_links': num_links, 'title': list_title, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id})
+    clear_history(request)
+    add_to_history(request, "/profile-view/"+user_id)
+    
+    return render(request, 'a_pages/list.html', {'user_id': user_id, 'list_id': list_id, 'num_links': num_links, 'title': list_title})
 
 def list_content_view(request, list_id=""):
     if not list_id:
@@ -405,10 +423,14 @@ def list_content_view(request, list_id=""):
     
     endpoint = get_api_url('items/?list='+list_id)
     response = requests.get(endpoint)
+    
+    if not response:
+        return HttpResponseClientRedirect("/")
+    
     data = response.json()
 
     if (len(data['results']) == 0):
-        return render(request, 'includes/splash_content.html')
+        return HttpResponseClientRedirect("/")
     
     for item in data['results']:
             # what default image should be used?
@@ -418,12 +440,9 @@ def list_content_view(request, list_id=""):
     #check for null results, is this the best way to get user and list?
     user_id = data['results'][0]['user']['id']
     list_title = data['results'][0]['list']['title']
-    last_view = "/profile-view/"+user_id
-    last_url = "/profile/"+user_id
-    
     num_links = len(data["results"])
     
-    return render(request, 'includes/list_content.html', {'results': data["results"], 'list_id': list_id, 'user_id': user_id, 'num_links': num_links, 'title': list_title, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id})
+    return render(request, 'includes/list_content.html', {'results': data["results"], 'list_id': list_id, 'user_id': user_id, 'num_links': num_links, 'title': list_title})
 
 def list_view(request, list_id=""):
     if not list_id:    
@@ -435,33 +454,23 @@ def list_view(request, list_id=""):
         request.session['list_name'] = list_name
         
     list_name = request.session.get('list_name', '')
-        
-    user_id = request.GET.get("user_id", "")
     
-    #if not list_name:
-        #list_name = "To Do"
-        
-        #endpoint = get_api_url('items/?list='+list_id)
-        #response = requests.get(endpoint)
-        #data = response.json()
-        #user_id = data['results'][0]['user']['id']
-        #list_name = data['results'][0]['list']['title']
+    add_to_history(request, "/list-view/"+list_id)
     
-    last_url = ""
-    last_view = ""
-        
-    if user_id:
-        last_url = "/profile/"+user_id
-        last_view = "/profile-view/"+user_id
-        
-    #to do
-    num_links = 0
-    
-    return render(request, 'includes/list.html', {'list_id': list_id, 'user_id': user_id, 'title': list_name, 'last_url': last_url, 'last_view': last_view, 'view': '/list-view/'+list_id, 'url': "/list/"+list_id, 'num_links': num_links})
+    return render(request, 'includes/list.html', {'list_id': list_id, 'title': list_name})
 
 def item_page_view(request, item_id=""):
+    if not item_id or item_id == "None":
+        return render(request, 'a_pages/splash.html')
+    
+    clear_history(request)
+    
     endpoint = get_api_url('items/'+item_id)
     response = requests.get(endpoint)
+    
+    if not response:
+        return redirect("/")
+
     data = response.json()
     
     list_id = ""
@@ -473,62 +482,61 @@ def item_page_view(request, item_id=""):
         list_id = data['list']['id']
         
     user_id = data['user']['id']
+    user_name = data['user']['name']
+    add_to_history(request, "/profile-view/"+user_id)
     
-    last_url = "/list/"+list_id
-    last_view = "/list-view/"+list_id
-    
-    return render(request, 'a_pages/item.html', {'item_id': item_id, 'list_id': list_id, 'user_id': user_id, 'last_url': last_url, 'last_view': last_view})
+    return render(request, 'a_pages/item.html', {'item_id': item_id, 'list_id': list_id, 'user_id': user_id, 'user_name': user_name})
 
-def item_view(request, item_id="", user_id="", bookmark_owner_id="", list_id="", last_view="", last_url=""):
+def item_view(request, item_id="", user_id=""):
     if not item_id:    
-        item_id = request.GET.get('item_id', "")
-        
-    if not list_id:    
-        list_id = request.GET.get('list_id', "")
+        item_id = request.GET.get("item_id", "")
         
     if not user_id:    
-        user_id = request.GET.get('user_id', "")
+        user_id = request.GET.get("user_id", "")
         
-    if not bookmark_owner_id:    
-        bookmark_owner_id = request.GET.get('bookmark_owner_id', "")
+    add_to_history(request, "/item-view/"+item_id)
     
-    if not last_view:
-        last_view = request.GET.get("last_view", "")
-        
-    if not last_url:
-        last_url = request.GET.get("last_url", "")
-    
-    return render(request, 'includes/item.html', {'user_id': user_id, 'bookmark_owner_id': bookmark_owner_id, 'item_id': item_id, 'list_id': list_id, 'last_url': last_url, 'last_view': last_view})
+    return render(request, 'includes/item.html', {'user_id': user_id, 'item_id': item_id})
 
 def item_content_view(request):    
     item_id = request.GET.get('item_id', "")
-    #last_view = request.GET.get("last_view", "")
-    #last_url = request.GET.get("last_url", "")
     endpoint = get_api_url('items/'+item_id)
     response = requests.get(endpoint)
-    data = response.json()
+    item_data = response.json()
     
     #this seems like the best way to do this
-    if data["ref_relation"]:
-        data = data["ref_relation"]
+    if item_data["ref_relation"]:
+        item_data = item_data["ref_relation"]
         
-    data["user"]["profile_pic"] = "https://images.keeplist.io/"+data["user"]["profile_pic"]
+    item_data["user"]["profile_pic"] = "https://images.keeplist.io/"+item_data["user"]["profile_pic"]
+    endpoint = get_api_url('items/?page_size=6&user='+item_data["user"]["id"])
+    response = requests.get(endpoint)
+    more_items_data = response.json()
+    more_items = []
+    
+    for item in more_items_data['results']:
+            if item["ref_relation"]:
+                item = item["ref_relation"]            
+                
+            if item["id"] != item_id:
+                more_items.append(item)
     
     #print(datetime.now())
     #print(datetime.now().date)
     #created = datetime.now() - datetime.strptime(data["created"], '%m/%d/%y %H:%M:%S')
     
-    return render(request, 'includes/item_content.html', {'item': data, 'user': data["user"]})
+    return render(request, 'includes/item_content.html', {'item': item_data, 'more_items': more_items, 'user': item_data["user"]})
 
 def more_items_view(request):
-    list_id = request.GET.get("list_id")
     item_id = request.GET.get("item_id")
     user_id = request.GET.get("user_id")
     
-    endpoint = get_api_url('items/?user='+user_id)
+    user = get_profile_data(request.session, user_id, call_db=True)
+    user_name = user["name"]
+    
+    endpoint = get_api_url('items/?page_size=6&user='+user_id)
     response = requests.get(endpoint)
     data = response.json()
-    user_name = data['results'][0]["user"]["name"]
     items = []
     
     for item in data['results']:
@@ -538,15 +546,7 @@ def more_items_view(request):
             if item["id"] != item_id:
                 items.append(item)
     
-    #remove item_id
-    
-    #check for null results, is this the best way to get user and list?
-    #user_id = data['results'][0]['user']['id']
-    #list_title = data['results'][0]['list']['title']
-    last_view = "/item-view/"+item_id
-    last_url = "/item/"+item_id
-    
-    return render(request, 'includes/more_items.html', {'results': items, 'list_id': list_id, 'user_id': user_id, 'user_name': user_name, 'last_url': last_url, 'last_view': last_view})
+    return render(request, 'includes/more_items.html', {'results': items, 'user_id': user_id, 'user_name': user_name})
 
 def item_page(request):
     #url = request.GET['url']
