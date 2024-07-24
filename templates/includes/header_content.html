@@ -29,4 +29,8 @@
         </span>
         {% endif %}
     </div>
+    {% if header_info.hide_bottom_border %}
+    <div class="sm:hidden absolute top-10 h-2 w-[700px] bg-[color:var(--background-default)]">
+    </div>
+    {% endif %}
 </div>

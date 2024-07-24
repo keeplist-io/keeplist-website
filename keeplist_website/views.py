@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import requests
 import json
+import math
 from .models import *
 from django.templatetags.static import static
 from django.shortcuts import redirect
@@ -125,6 +126,7 @@ def header_content_view(request):
     num_links = request.GET.get('num_links', 0)
     subtitle = ""
     last_url = ""
+    hide_bottom_border = request.GET.get("hide_bottom_border", False)
     history = request.session.get("history", [])
     
     if len(history) > 1:
@@ -139,7 +141,8 @@ def header_content_view(request):
         "subtitle": subtitle,
         "last_url": last_url,
         "title": request.GET.get('title', ""),
-        "is_history": len(history) > 1
+        "is_history": len(history) > 1,
+        "hide_bottom_border": hide_bottom_border
     }
     
     return render(request, 'includes/header_content.html', {'header_info': header_info})
@@ -521,11 +524,26 @@ def item_content_view(request):
             if item["id"] != item_id:
                 more_items.append(item)
     
-    #print(datetime.now())
-    #print(datetime.now().date)
-    #created = datetime.now() - datetime.strptime(data["created"], '%m/%d/%y %H:%M:%S')
+    created = datetime.now() - datetime.strptime(item_data["created"], '%Y-%m-%dT%H:%M:%S.%fZ')
+    total_seconds = created.total_seconds()
+    minutes = math.ceil(total_seconds / 60)
     
-    return render(request, 'includes/item_content.html', {'item': item_data, 'more_items': more_items, 'user': item_data["user"]})
+    # I'll be revisiting this once we know what to display
+    if minutes < 60:
+        created = "%m mins" % (minutes)
+    else:
+        hours = math.ceil(minutes / 60)
+        if hours < 24:
+            created = "%h hrs" % (hours)
+        else:
+            days = math.ceil(hours / 24)
+            if days < 365:
+                created = "%d days" % (days)
+            else:
+                years = math.floor(days / 365)
+                created = "%y years" % (years)
+    
+    return render(request, 'includes/item_content.html', {'item': item_data, 'more_items': more_items, 'user': item_data["user"], 'created': created})
 
 def more_items_view(request):
     item_id = request.GET.get("item_id")
