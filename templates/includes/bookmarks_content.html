@@ -3,7 +3,7 @@
 <div class="flex flex-col">
     {% for item in bookmarks %}
         <div class="flex my-[var(--space-small)] cursor-pointer" hx-get="{% url 'item_view' %}" hx-push-url="/item/{{item.id}}" hx-target="#center-content"
-            hx-vals='{"item_id":"{{item.id}}", "user_id":"{{item.user.id}}", "bookmark_owner_id": "{{user_id}}"}'
+            hx-vals='{"item_id":"{{item.id}}", "user_id":"{{item.user.id}}"}'
             hx-swap="show:window:top" hx-on:htmx-trigger="document.querySelector('#header-title').innerHTML = '';">
             <img class="h-20 w-20 mr-[var(--space-large)] aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
             <div class="flex flex-col justify-center">

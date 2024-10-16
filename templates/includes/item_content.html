@@ -20,17 +20,6 @@
                 <img class="grow-0 h-6 w-6" src={% static "chevron-compact-right.svg" %}>
         </div>
 </div>
-<div class="main-content-md mt-0 sm:rounded-md flex flex-col mb-2 p-[var(--space-3xlarge)] bg-[color:var(--background-default)]">
-        <div class="font-500 font-bold mb-[var(--space-2xlarge)]">More from {{user.name}}</div>
+<div hx-get="{% url 'more_items_view' %}" hx-vals='{"item_id": "{{item.id}}", "user_id":"{{user.id}}"}' hx-trigger="load">
 
-        <div class="grid grid-cols-2 gap-x-4 gap-y-8">
-        {% for item in more_items %}
-                <a hx-get="{% url 'item_view' %}" hx-push-url="/item/{{item.id}}" hx-target="#center-content" hx-vals='{"item_id":"{{item.id}}", "user_id":"{{user_id}}"}' hx-swap="show:window:top">
-                <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
-                <div class="pt-[var(--space-medium)] font-500 font-bold line-clamp-2">
-                        {{ item.title }}
-                </div>
-                </a>
-        {% endfor %}
-        </div>
 </div>

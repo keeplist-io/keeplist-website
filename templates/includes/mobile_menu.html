@@ -4,7 +4,7 @@
     <nav class="flex font-500 [&>a]:rounded-lg [&>a]:px-[var(--space-small)]">
         {% for item in items %}
         <a class="flex justify-center flex-1 group {% if item.is_selected %} [color:var(--content-primary)]{% endif %}" href="{{ item.url }}">
-            <img class="group-hover:hidden h-7" src="{{ item.icon }}"/>
+            <img class="group-hover:hidden h-7" src="{% if item.is_selected %} {{ item.icon_selected }} {% else %} {{ item.icon }} {% endif %}"/>
             <img class="hidden group-hover:flex h-7" src="{{ item.icon_selected }}"/>
         </a>
         {% endfor %}
