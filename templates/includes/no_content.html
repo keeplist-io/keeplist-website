@@ -1,0 +1,19 @@
+{% load static %}
+
+<div class="flex items-center justify-between py-4">
+    <div class="px-12 py-2 bg-[color:var(--action-secondary-normal)] rounded-md"></div>
+    <div class="px-6 py-2 bg-[color:var(--action-secondary-normal)] rounded-md"></div>
+</div>
+<div class="overflow-x-auto">
+    <div class="grid grid-cols-3 gap-x-[var(--space-large)] min-w-[420px]">
+        {% for i in range %}
+        <div>
+            <div class="w-full bg-[color:var(--action-secondary-normal)] aspect-square object-cover rounded-xl"></div>
+            <div class="inline-block mt-[var(--space-medium)] px-12 py-2 bg-[color:var(--action-secondary-normal)] rounded-md"></div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="text-center mt-[var(--space-3xlarge)] mb-[var(--space-2xlarge)] font-500 [color:var(--content-tertiary)]">
+    {{ message }}
+</div>

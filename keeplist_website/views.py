@@ -179,6 +179,10 @@ def keeplist_preview_view(request):
     user_id = request.GET.get("user_id", "")
     list_data = get_api_results('lists/?list_type=KP&user='+user_id)
     list_results = list_data['results']
+    
+    if not user_id or not list_data or not list_results or len(list_results) == 0:
+        return render(request, 'includes/no_content.html', {"range": range(3), "message": "No link items published yet"})
+    
     keeplists = []
     
     for list in list_results:
@@ -188,32 +192,38 @@ def keeplist_preview_view(request):
     items = []
     
     for item in item_data['results']:
-        current_item_list_id = item.get('list', {}).get('id')
+        current_list_id = item.get('list', {}).get('id', None)
         
-        if not current_item_list_id:
+        if not current_list_id:
             continue
     
         for list in keeplists:            
-            if list['id'] == current_item_list_id and len(list.get('items', [])) < 3:
+            if list['id'] == current_list_id and len(list.get('items', [])) < 3:
                 # some items have images under imageurl, others under content.file. why?
                 if not item["imageurl"] and item["content"]:
-                    item["imageurl"] = item["content"][0]["file"]
+                    item["imageurl"] = item["content"][0].get("file", "")
                     
                 list['items'].append(item)
+                break
     
     return render(request, 'includes/keeplist_preview_container.html', {'keeplists': keeplists, 'user_id': user_id})
     
 def bookmarks_preview_view(request):
-    user_id = request.GET.get("user_id", "")
+    user_id = request.GET.get("user_id", "")    
     list_data = get_api_results('lists/?list_type=BK&user='+user_id)
+    list_results = list_data.get('results', [])
     bookmark_lists = []
     
-    for list in list_data['results']:
+    if not user_id or not list_data or not list_results or len(list_results) == 0:
+        return render(request, 'includes/no_content.html', {"range": range(3), "message": "No bookmarks added yet"})
+    
+    for list in list_results:
+        #create list to add bookmarks to
         list['bookmark_items'] = []
         bookmark_lists.append(list)
     
-    data = get_api_results('items/?list_type=BK&user='+user_id)
-    all_bookmarks = data['results']
+    items = get_api_results('items/?list_type=BK&user='+user_id)
+    all_bookmarks = items['results']
     
     for item in all_bookmarks:
         if not item["imageurl"] and item["ref_relation"]:
@@ -222,6 +232,7 @@ def bookmarks_preview_view(request):
         for list in bookmark_lists:
             if item['list'] and list['id'] == item['list']['id'] and len(list['bookmark_items']) < 4:
                 list['bookmark_items'].append(item)
+                break
         
     return render(request, 'includes/bookmarks_preview_container.html', {'all_bookmarks': all_bookmarks[:8], 'bookmark_lists': bookmark_lists, 'user_id': user_id})
 

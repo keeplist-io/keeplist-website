@@ -10,19 +10,21 @@
             class="font-500 font-bold px-4 py-2 bg-[color:var(--action-secondary-normal)]">View all</button>
         
     </div>
-    <ul class="grid grid-cols-3 gap-x-[var(--space-large)]">
-        {% for item in list.items %}
-        <li>
-            <a hx-get="{% url 'item_view' %}" hx-push-url="/item/{{item.id}}" hx-target="#center-content"
-                hx-vals='{"item_id":"{{item.id}}", "user_id":"{{user_id}}"}'
-                hx-on:htmx-trigger="document.querySelector('#header-title').innerHTML = '';" hx-swap="show:window:top">
-                <img class="w-full aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
-                <div class="font-500 font-bold pt-[var(--space-medium)] line-clamp-2">
-                    {{ item.title }}
-                </div>
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
+    <div class="overflow-x-auto">
+        <ul class="grid grid-cols-3 gap-x-[var(--space-large)] min-w-[420px]">
+            {% for item in list.items %}
+            <li>
+                <a hx-get="{% url 'item_view' %}" hx-push-url="/item/{{item.id}}" hx-target="#center-content"
+                    hx-vals='{"item_id":"{{item.id}}", "user_id":"{{user_id}}"}'
+                    hx-on:htmx-trigger="document.querySelector('#header-title').innerHTML = '';" hx-swap="show:window:top">
+                    <img class="w-full aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
+                    <div class="font-500 font-bold pt-[var(--space-medium)] line-clamp-2">
+                        {{ item.title }}
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
 {% endfor %}
