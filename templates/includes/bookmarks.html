@@ -4,7 +4,7 @@
 
 <div class="flex items-center justify-center">
     <div class="main-content main-content-lg sm:rounded-md list-content flex flex-col mb-2 sm:my-4 px-[var(--space-large)] pt-0 sm:p-8 bg-[color:var(--background-default)]">
-        <div hx-target="#list-content" class="tab-list mb-[var(--space-large)] border-b border-[color:var(--border-normal)] [&>button]:p-2 [&>button]:rounded-none" role="tablist"
+        <div hx-target="#list-content" class="tab-list mb-[var(--space-large)] border-b border-[color:var(--border-normal)] overflow-y-hidden overflow-x-auto whitespace-nowrap [&>button]:rounded-none" role="tablist"
             hx-on:htmx-trigger="let currentTab = document.querySelector('[aria-selected=true]');
                         currentTab.setAttribute('aria-selected', 'false')
                         currentTab.classList.remove('selected')
@@ -13,9 +13,9 @@
                         newTab.classList.add('selected')
                         document.getElementById('list-loading-indicator').style.display = 'flex'"
             hx-on:htmx-after-on-load="document.getElementById('list-loading-indicator').style.display = 'none'">
-            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"user_id": "{{user_id}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="font-bold inline-block border-none relative inset-y-px active:[color:var(--action-inverted-pressed)] {% if list_id == '' %}selected{% endif %}" role="tab" aria-selected="{% if list_id == '' %}true{% else %}false{% endif %}" aria-controls="tab-content">All</button>
+            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"user_id": "{{user_id}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="font-bold inline-block border-none relative mr-2 py-2 inset-y-px active:[color:var(--action-inverted-pressed)] {% if list_id == '' %}selected{% endif %}" role="tab" aria-selected="{% if list_id == '' %}true{% else %}false{% endif %}" aria-controls="tab-content">All</button>
             {% for category in categories %}
-            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"list_id": "{{category.id}}", "list_name":"{{category.title}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="font-bold inline-block relative inset-y-px active:[color:var(--action-inverted-pressed)] {% if category.id == list_id %}selected{% endif %}" role="tab" aria-selected="{% if category.id == list_id %}true{% else %}false{% endif %}" aria-controls="tab-content">{{category.title}}</button>
+            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"list_id": "{{category.id}}", "list_name":"{{category.title}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="font-bold inline-block relative py-2 mx-2 inset-y-px active:[color:var(--action-inverted-pressed)] {% if category.id == list_id %}selected{% endif %}" role="tab" aria-selected="{% if category.id == list_id %}true{% else %}false{% endif %}" aria-controls="tab-content">{{category.title}}</button>
             {% endfor %}
         </div>
         

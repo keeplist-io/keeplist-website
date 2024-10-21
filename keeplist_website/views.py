@@ -9,6 +9,8 @@ from urllib.parse import urlparse
 from datetime import datetime
 from django_htmx.http import HttpResponseClientRedirect
 
+images_url = "https://images.keeplist.io/"
+
 def view_404(request, exception=None):
     return redirect('/')
 
@@ -273,39 +275,30 @@ def bookmarks_view(request, user_id = ""):
 def bookmarks_content_view(request):
     list_id = request.GET.get("list_id", "")
     user_id = request.GET.get("user_id", "")
+    data = {}
     
     # if no list id, then get all bookmarks
     if not list_id:
         data = get_api_results('items/?list_type=BK&user='+user_id)
-        bookmarks = data['results']
-        
-        for item in bookmarks:                                   
-            if item["ref_relation"]:
-                if not item["imageurl"]:
-                    item["imageurl"] = item["ref_relation"]["imageurl"]
-                
-                item["title"] = item["ref_relation"]["title"]
-                
-                user_ref = item["ref_relation"]["user"]
-                item["user"]["id"] = user_ref["id"]
-                item["user"]["profile_pic"] = "https://images.keeplist.io/"+user_ref["profile_pic"]
-                item["user"]["username"] = user_ref["username"]
-            else:  
-                item["user"]["profile_pic"] = "https://images.keeplist.io/"+item["user"]["profile_pic"]
-                item["user"]["username"] = item["user"]["username"]
     else:
-        data = get_api_results('items/?list='+list_id)
-        bookmarks = data['results']
-
-        for item in bookmarks:
-                # what default image should be used?
-                if not item["imageurl"]:
-                    item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
-                    
-                if item["user"]["profile_pic"]:  
-                    item["user"]["profile_pic"] = "https://images.keeplist.io/"+item["user"]["profile_pic"]
+        data = get_api_results('items/?list='+list_id) 
+        
+    bookmarks = []
     
-    return render(request, 'includes/bookmarks_content.html', {'bookmarks': data["results"], 'list_id': list_id, 'user_id': user_id})
+    for item in data['results']:
+        imageurl = item["imageurl"]
+                                           
+        if item["ref_relation"]:
+            item = item["ref_relation"]
+            
+            # if using ref_relation, we need to still use the top level imageurl
+            if imageurl:
+                item["imageurl"] = imageurl
+            
+        item["user"]["profile_pic"] = images_url + item["user"]["profile_pic"]
+        bookmarks.append(item)    
+
+    return render(request, 'includes/bookmarks_content.html', {'bookmarks': bookmarks, 'list_id': list_id, 'user_id': user_id})
 
 def share_modal_view(request):
     user_id = request.GET.get("user_id", "")
@@ -483,7 +476,7 @@ def item_content_view(request):
     if item_data["ref_relation"]:
         item_data = item_data["ref_relation"]
         
-    item_data["user"]["profile_pic"] = "https://images.keeplist.io/"+item_data["user"]["profile_pic"]
+    item_data["user"]["profile_pic"] = images_url + item_data["user"]["profile_pic"]
     
     #TODO: is imageurl always populated? if not, this is another place that stores the image
     #if not item_data['imageurl'] and item_data['content']:
