@@ -14,11 +14,11 @@
         </div>
         <div class="font-500 line-clamp-2 mb-[var(--space-medium)]">{{ item.title }}</div>
         <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
-        <div class="flex items-center w-full mt-[var(--space-small)] px-[var(--space-small)] bg-[color:var(--action-secondary-normal)] rounded-lg cursor-pointer" hx-get="/item-page" hx-target="#center-content" hx-vals='{"item_id": "{{ item.id }}"}'>
+        <a class="flex items-center w-full mt-[var(--space-small)] px-[var(--space-small)] bg-[color:var(--action-secondary-normal)] rounded-lg cursor-pointer" href="{{item.url}}" target="_blank">
                 <img class="grow-0 h-6 w-6" src="{{ item.icon }}">
                 <span class="grow-1 w-full mx-[var(--space-large)] my-[var(--space-small)] font-500 font-bold line-clamp-2">{{ item.title }}</span>
                 <img class="grow-0 h-6 w-6" src={% static "chevron-compact-right.svg" %}>
-        </div>
+        </a>
 </div>
 <div hx-get="{% url 'more_items_view' %}" hx-vals='{"item_id": "{{item.id}}", "user_id":"{{user.id}}"}' hx-trigger="load">
 

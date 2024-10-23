@@ -14,6 +14,29 @@ images_url = "https://images.keeplist.io/"
 def view_404(request, exception=None):
     return redirect('/')
 
+def get_time_label(dt):
+    total_seconds = dt.total_seconds()
+    minutes = math.ceil(total_seconds / 60)
+    
+    if minutes < 2:
+        return "now"
+    
+    if minutes < 60:
+        return "%mmin" % (minutes)
+    
+    hours = math.ceil(minutes / 60)
+    
+    if hours < 24:
+        return "%hh" % (hours)
+    
+    days = math.ceil(hours / 24)
+    
+    if days < 365:
+        return "%dd" % (days)
+
+    years = math.floor(days / 365)
+    return "%yy" % (years)
+
 def get_api_results(url_ending):
     response = requests.get("https://dev.keeplist.io/api/v1/"+url_ending)
     
@@ -406,9 +429,8 @@ def list_content_view(request, list_id=""):
         return HttpResponseClientRedirect("/")
     
     for item in list_result['results']:
-            # what default image should be used?
-            if not item["imageurl"]:
-                item["imageurl"] = "https://images.newscientist.com/wp-content/uploads/2024/05/15214800/SEI_204280908.jpg"
+        if not item["imageurl"] and item.get("content", None):
+            item["imageurl"] = item["content"][0]["file"]
     
     #check for null results, is this the best way to get user and list?
     user_id = list_result['results'][0]['user']['id']
@@ -482,26 +504,13 @@ def item_content_view(request):
     #if not item_data['imageurl'] and item_data['content']:
     #    item_data['imageurl'] = item_data['content'][0].get('file', '')
     
+    if not item_data["imageurl"] and item_data.get("content", None):
+            item_data["imageurl"] = item_data["content"][0].get("file", "")
+    
     created = datetime.now() - datetime.strptime(item_data["created"], '%Y-%m-%dT%H:%M:%S.%fZ')
-    total_seconds = created.total_seconds()
-    minutes = math.ceil(total_seconds / 60)
+    created_label = get_time_label(created)
     
-    # I'll be revisiting this once we know what to display
-    if minutes < 60:
-        created = "%m mins" % (minutes)
-    else:
-        hours = math.ceil(minutes / 60)
-        if hours < 24:
-            created = "%h hrs" % (hours)
-        else:
-            days = math.ceil(hours / 24)
-            if days < 365:
-                created = "%d days" % (days)
-            else:
-                years = math.floor(days / 365)
-                created = "%y years" % (years)
-    
-    return render(request, 'includes/item_content.html', {'item': item_data, 'user': item_data["user"], 'created': created})
+    return render(request, 'includes/item_content.html', {'item': item_data, 'user': item_data["user"], 'created': created_label})
 
 def more_items_view(request):
     item_id = request.GET.get("item_id")
