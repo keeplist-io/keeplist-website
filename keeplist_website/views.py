@@ -22,20 +22,20 @@ def get_time_label(dt):
         return "now"
     
     if minutes < 60:
-        return "%mmin" % (minutes)
+        return f"{minutes}min"
     
     hours = math.ceil(minutes / 60)
     
     if hours < 24:
-        return "%hh" % (hours)
+        return f"{hours}h"
     
     days = math.ceil(hours / 24)
     
     if days < 365:
-        return "%dd" % (days)
+        return f"{days}d"
 
     years = math.floor(days / 365)
-    return "%yy" % (years)
+    return f"{years}y"
 
 def get_api_results(url_ending):
     response = requests.get("https://dev.keeplist.io/api/v1/"+url_ending)
