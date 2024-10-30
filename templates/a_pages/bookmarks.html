@@ -5,7 +5,7 @@
     {% include 'includes/header.html' %}
 
     <main id="center-content" class="bg-[color:var(--background-surface)]">
-        <div hx-get="{% url 'bookmarks_view' %}" hx-vals='{"user_id": "{{user_id}}"}' hx-trigger="load"></div>
+        <div hx-get="{% url 'bookmarks_view' user_id %}" hx-trigger="load" ></div>
     </main>
 
 {% endblock %}

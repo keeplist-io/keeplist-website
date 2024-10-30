@@ -1,6 +1,6 @@
 {% load static %}
   
-<div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"title":"{{user.username}}"}' hx-trigger="load"></div>
+<div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"title": "{{user.username}}"}' hx-trigger="load"></div>
 
 <div class="w-full px-12 py-4 flex flex-col items-center">    
     <div class="inline-flex flex-col items-center">

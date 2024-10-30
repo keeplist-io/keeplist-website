@@ -3,7 +3,7 @@
 <div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-trigger="load"></div>
 
 <div class="flex flex-col items-center justify-center">
-    <div class="mt-[var(--space-5xlarge)]" hx-get="{% url 'item_content_view' %}" hx-vals='{"item_id": "{{item_id}}", "user_id":"{{user_id}}"}' hx-trigger="load" hx-swap="outerHTML">
+    <div class="mt-[var(--space-5xlarge)]" hx-get="{% url 'item_content_view' user_id list_type list_id item_id %}" hx-trigger="load" hx-swap="outerHTML">
         <div class="loading-indicator flex items-center justify-center">
             <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
         </div>

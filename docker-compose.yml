@@ -1,17 +1,31 @@
+version: '3'
+
 services:
   web:
     build: .
-    environment:
-      MYENV: EXAMPLE
     volumes:
       - .:/app
-  web_migrate:
-    extends:
-      service: web
-    command: python manage.py migrate
-  web_run:
-    extends:
-      service: web
-    command: python manage.py runserver 0.0.0.0:8000
+      - static_volume:/app/staticfiles
+    environment:
+      - ELASTICACHE_ENDPOINT=redis:6379
+      - DJANGO_SETTINGS_MODULE=a_core.settings
+    restart: always
+    depends_on:
+      - redis
+  redis:
+    image: redis:latest
     ports:
-      - "8000:8000"
+      - "6379:6379"
+  web_nginx:
+    image: nginx:alpine
+    volumes:
+      - static_volume:/usr/share/nginx/html/static
+      - ./nginx:/etc/nginx/conf.d
+    ports:
+      - "8001:81"
+    depends_on:
+      - web
+volumes:
+  static_volume:
+
+

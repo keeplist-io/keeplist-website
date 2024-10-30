@@ -1,11 +1,12 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block content %} {% include 'includes/header.html' %}
 
-{% block content %}
-
-    {% include 'includes/header.html' %}
-
-    <main id="center-content" class="bg-[color:var(--background-surface)]">
-        <div hx-get="{% url 'list_view' %}" hx-vals='{"list_id": "{{list_id}}", "list_name":"{{title}}"}' hx-trigger="load"></div>
-    </main>
+<main id="center-content" class="bg-[color:var(--background-surface)]">
+  <div
+    hx-get="{% url 'list_view' user_id list_type list_id %}"
+    hx-vals='{"title": "{{title}}"}'
+    hx-trigger="load"
+    hx-push-url="/profile/{{user_id}}/lists/{{list_id}}/"
+  ></div>
+</main>
 
 {% endblock %}

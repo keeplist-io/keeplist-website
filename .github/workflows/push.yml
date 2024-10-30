@@ -1,0 +1,58 @@
+name: docker-compose-actions-workflow
+on:
+  push:
+    tags:
+      - "v*.*.*"
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::158627930377:role/github-actions/gh-oidc-keeplist-web-service
+          aws-region: us-east-1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push Django image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/keeplist:web-${{ steps.get_version.outputs.VERSION }}
+            ${{ steps.login-ecr.outputs.registry }}/keeplist:web-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      # - name: Build and push Nginx image
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./compose/prod/nginx
+      #     file: ./compose/prod/nginx/Dockerfile
+      #     push: true
+      #     tags: |
+      #       ${{ steps.login-ecr.outputs.registry }}/keeplist:nginx-${{ steps.get_version.outputs.VERSION }}
+      #       ${{ steps.login-ecr.outputs.registry }}/keeplist:nginx-latest
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
+      - name: Force new AWS ECS deployment
+        run: |
+          aws ecs update-service --cluster "fargate-default" --service "keeplist-web-service" --force-new-deployment
+        shell: bash
