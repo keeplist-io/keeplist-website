@@ -1,6 +1,6 @@
 {% load static %}
 
-<div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"title": "Keeps", "list_id":"{{list_id}}", "user_id":"{{user_id}}", "hide_bottom_border": "{{True}}"}' hx-trigger="load"></div>
+<div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"title": "Keeps", "hide_bottom_border": "{{True}}"}' hx-trigger="load"></div>
 
 <div class="flex items-center justify-center">
     <div class="main-content main-content-lg sm:rounded-md list-content flex flex-col mb-2 sm:my-4 px-[var(--space-large)] pt-0 sm:p-8 bg-[color:var(--background-default)]">
@@ -13,16 +13,16 @@
                         newTab.classList.add('selected')
                         document.getElementById('list-loading-indicator').style.display = 'flex'"
             hx-on:htmx-after-on-load="document.getElementById('list-loading-indicator').style.display = 'none'">
-            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"user_id": "{{user_id}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="font-bold inline-block border-none relative mr-2 py-2 inset-y-px active:[color:var(--action-inverted-pressed)] {% if list_id == '' %}selected{% endif %}" role="tab" aria-selected="{% if list_id == '' %}true{% else %}false{% endif %}" aria-controls="tab-content">All</button>
+            <button hx-get="{% url 'bookmarks_content_view' user_id "keeps" %} hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="font-bold inline-block border-none relative mr-2 py-2 inset-y-px active:[color:var(--action-inverted-pressed)] {% if list_id == '' %}selected{% endif %}" role="tab" aria-selected="{% if list_id == '' %}true{% else %}false{% endif %}" aria-controls="tab-content">All</button>
             {% for category in categories %}
-            <button hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"list_id": "{{category.id}}", "list_name":"{{category.title}}"}' hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="font-bold inline-block relative py-2 mx-2 inset-y-px active:[color:var(--action-inverted-pressed)] {% if category.id == list_id %}selected{% endif %}" role="tab" aria-selected="{% if category.id == list_id %}true{% else %}false{% endif %}" aria-controls="tab-content">{{category.title}}</button>
+            <button hx-get="{% url 'bookmarks_content_view' user_id 'keeps' category.slug %}" hx-on:htmx-trigger="document.getElementById('list-content').innerHTML = ''" class="font-bold inline-block relative py-2 mx-2 inset-y-px active:[color:var(--action-inverted-pressed)] {% if category.slug == list_id %}selected{% endif %}" role="tab" aria-selected="{% if category.slug == list_id %}true{% else %}false{% endif %}" aria-controls="tab-content">{{category.title}}</button>
             {% endfor %}
         </div>
         
         <div id="list-loading-indicator" class="loading-indicator flex items-center justify-center mt-[var(--space-3xlarge)]">
             <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
         </div>
-        <div id="list-content" hx-get="{% url 'bookmarks_content_view' %}" hx-vals='{"user_id": "{{user_id}}", "list_id": "{{list_id}}"}' hx-trigger="load" hx-on:htmx-after-on-load="document.getElementById('list-loading-indicator').style.display = 'none'" role="tabpanel" class="tab-content px-0">
+        <div id="list-content" hx-get="{% url 'bookmarks_content_view' user_id 'keeps' list_id %}" hx-trigger="load" hx-on:htmx-after-on-load="document.getElementById('list-loading-indicator').style.display = 'none'" role="tabpanel" class="tab-content px-0">
         </div>
     </div>
 </div>

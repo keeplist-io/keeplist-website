@@ -1,16 +1,29 @@
 {% if items %}
-<div class="main-content-md mt-0 sm:rounded-md flex flex-col mb-2 p-[var(--space-3xlarge)] bg-[color:var(--background-default)]">
-    <div class="font-500 font-bold mb-[var(--space-2xlarge)]">More from {{user_name}}</div>
+<div
+  class="
+    main-content-md
+    mt-0
+    sm:rounded-md
+    flex flex-col
+    mb-2
+    p-[var(--space-3xlarge)]
+    bg-[color:var(--background-default)]
+  "
+>
+  <div class="font-500 font-bold mb-[var(--space-2xlarge)]">More from {{user_name}}</div>
 
-    <div class="grid grid-cols-2 gap-x-4 gap-y-8">
+  <div class="grid grid-cols-2 gap-x-4 gap-y-8">
     {% for item in items %}
-            <a hx-get="{% url 'item_view' %}" hx-push-url="/item/{{item.id}}" hx-target="#center-content" hx-vals='{"item_id":"{{item.id}}", "user_id":"{{user_id}}"}' hx-swap="show:window:top">
-            <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
-            <div class="pt-[var(--space-medium)] font-500 font-bold line-clamp-2">
-                    {{ item.title }}
-            </div>
-            </a>
+    <a
+      hx-get="{% url 'item_view' user_id list_type item.list.slug item.slug %}"
+      hx-target="#center-content"
+      hx-swap="show:window:top"
+      hx-push-url="/profile/{{user_id}}/{{list_type}}/{{item.list.slug}}/{{item.slug}}"
+    >
+      <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}" />
+      <div class="pt-[var(--space-medium)] font-500 font-bold line-clamp-2">{{ item.title }}</div>
+    </a>
     {% endfor %}
-    </div>
+  </div>
 </div>
 {% endif %}

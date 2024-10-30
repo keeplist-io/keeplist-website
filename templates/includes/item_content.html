@@ -1,25 +1,66 @@
 {% load static %}
-
-<div class="main-content main-content-md sm:rounded-md item-content flex flex-col mb-2 p-[var(--space-3xlarge)] bg-[color:var(--background-default)]">
-        <div class="min-h-10 mb-[var(--space-medium)]">
-                <div class="flex gap-[var(--space-medium)]">
-                        <a hx-get="{% url 'profile_view' %}" hx-push-url="/profile/{{user.id}}" hx-target="#center-content" hx-vals='{"list_id":"{{list.id}}", "list_name":"{{list.title}}", "user_id":"{{user.id}}", "user_name":"{{user.name}}"}' hx-swap="show:window:top">
-                                <img class="w-10 h-10 rounded-full" src="{{ user.profile_pic }}">
-                        </a>
-                        <div class="grid grid-rows-2 content-between">
-                                <div class="font-500 font-bold">{{ user.name }}</div>
-                                <div class="flex font-600 [color:var(--content-tertiary)]"><span class="self-end">{{ created }}</span></div>
-                        </div>
-                </div>
+<div
+  class="hidden"
+  hx-get="{% url 'header_content_view' %}"
+  hx-target="#header-content"
+  hx-vals='{"title": "{{title}}"}'
+  hx-trigger="load"
+  hx-push-url="/profile/{{user.username}}/{{item.list_type}}/{{list_id}}/{{item.slug}}/"
+></div>
+<div
+  class="
+    main-content main-content-md
+    sm:rounded-md
+    item-content
+    flex flex-col
+    mb-2
+    p-[var(--space-3xlarge)]
+    bg-[color:var(--background-default)]
+  "
+>
+  <div class="min-h-10 mb-[var(--space-medium)]">
+    <div class="flex gap-[var(--space-medium)]">
+      <a
+        hx-get="{% url 'profile_view' user.username %}"
+        hx-target="#center-content"
+        hx-swap="show:window:top"
+      >
+        <img class="w-10 h-10 rounded-full" src="{{ user.profile_pic }}" />
+      </a>
+      <div class="grid grid-rows-2 content-between">
+        <div class="font-500 font-bold">{{ user.name }}</div>
+        <div class="flex font-600 [color:var(--content-tertiary)]">
+          <span class="self-end">{{ created }}</span>
         </div>
-        <div class="font-500 line-clamp-2 mb-[var(--space-medium)]">{{ item.title }}</div>
-        <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}">
-        <a class="flex items-center w-full mt-[var(--space-small)] px-[var(--space-small)] bg-[color:var(--action-secondary-normal)] rounded-lg cursor-pointer" href="{{item.url}}" target="_blank">
-                <img class="grow-0 h-6 w-6" src="{{ item.icon }}">
-                <span class="grow-1 w-full mx-[var(--space-large)] my-[var(--space-small)] font-500 font-bold line-clamp-2">{{ item.title }}</span>
-                <img class="grow-0 h-6 w-6" src={% static "chevron-compact-right.svg" %}>
-        </a>
+      </div>
+    </div>
+  </div>
+  <div class="font-500 line-clamp-2 mb-[var(--space-medium)]">{{ item.title }}</div>
+  <img class="aspect-square object-cover rounded-xl" src="{{ item.imageurl }}" />
+  <a
+    class="
+      flex
+      items-center
+      w-full
+      mt-[var(--space-small)]
+      px-[var(--space-small)]
+      bg-[color:var(--action-secondary-normal)]
+      rounded-lg
+      cursor-pointer
+    "
+    href="{{item.url}}"
+    target="_blank"
+  >
+    <img class="grow-0 h-6 w-6" src="{{ item.icon }}" />
+    <span
+      class="grow-1 w-full mx-[var(--space-large)] my-[var(--space-small)] font-500 font-bold line-clamp-2"
+      >{{ item.title }}</span
+    >
+    <img class="grow-0 h-6 w-6" src={% static "chevron-compact-right.svg" %}>
+  </a>
 </div>
-<div hx-get="{% url 'more_items_view' %}" hx-vals='{"item_id": "{{item.id}}", "user_id":"{{user.id}}"}' hx-trigger="load">
-
-</div>
+<div
+  hx-get="{% url 'more_items_view' user.username item.list_type %}"
+  hx-vals='{"item_id": "{{item.id}}"}'
+  hx-trigger="load"
+></div>

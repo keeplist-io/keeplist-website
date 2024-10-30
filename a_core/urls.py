@@ -1,58 +1,40 @@
-"""
-URL configuration for a_core project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from keeplist_website.views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
-handler404 = 'keeplist_website.views.view_404' 
+user_routes = [
+    path('', splash_page_view, name="splash_page_view"),
+    re_path(r'^(?:u|user|profile)/$', splash_page_view, name="splash_page_view"),
+    
+    re_path(r'^(?:u|user|profile)/(?P<user_id>@?[\w-]+)/$', profile_page_view, name="profile_page_view"),
+    re_path(r'^(?:u|user|profile)/(?P<user_id>@?[\w-]+)/(?:lists|keeps)/$', profile_page_view, name="profile_page_view"),
+    re_path(r'^(?:u|user|profile)/(?P<user_id>@?[\w-]+)/(?:lists|l)/(?P<list_id>[\w-]+)/$', 
+        list_page_view, name="list_page_view"),
+    re_path(r'^(?:u|user|profile)/(?P<user_id>@?[\w-]+)/(?:keeps|k)/(?P<list_id>[\w-]+)/$',
+        bookmarks_page_view, name="bookmarks_page_view"),
+    
+    re_path(r'^(?:u|user|profile)/(?P<user_id>@?[\w-]+)/(?P<list_type>[\w-]+)/(?P<list_id>[\w-]+)/(?P<item_id>[\w-]+)/$',
+        item_page_view, name="item_page_view"),
+]
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', splash_page_view),
-    path('search/', splash_page_view),
-    path('notifications/', splash_page_view),
-    path('profile/', splash_page_view),
-    
-    path('profile/<str:user_id>/', profile_page_view),
-    path('list/<str:list_id>/', list_page_view),
-    path('bookmarks/<str:user_id>/', bookmarks_page_view),
-    path('item/<str:item_id>/', item_page_view),
-    
-    path('last-view/', last_view, name="last_view"),
-    path('menu-view/', menu_view, name="menu_view"),
-    path('mobile-menu-view/', mobile_menu_view, name="mobile_menu_view"),
-    path('mobile-splash-content-view/', mobile_splash_content_view, name="mobile_splash_content_view"),
-    path('keeplist-preview-view/', keeplist_preview_view, name="keeplist_preview_view"),
-    path('bookmarks-preview-view/', bookmarks_preview_view, name="bookmarks_preview_view"),
-    path('bookmarks-view/', bookmarks_view, name="bookmarks_view"),
-    path('bookmarks-view/<str:user_id>', bookmarks_view, name="bookmarks_view"),
-    path('bookmarks-content-view/', bookmarks_content_view, name="bookmarks_content_view"),
-    path('list-view/', list_view, name="list_view"),
-    path('list-view/<str:list_id>', list_view),
-    path('list-content-view/', list_content_view, name="list_content_view"),
-    path('item-view/', item_view, name="item_view"),
-    path('item-view/<str:item_id>', item_view, name="item_view"),
-    path('item-content-view/', item_content_view, name="item_content_view"),
-    path('more-items-view/', more_items_view, name="more_items_view"),
-    path('header-content-view/', header_content_view, name="header_content_view"),
-    path('profile-view/', profile_view, name="profile_view"),
-    path('profile-view/<str:user_id>', profile_view),
-    path('profile-content-view/', profile_content_view, name="profile_content_view"),
-    path('share-modal-view/', share_modal_view, name="share_modal_view"),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    *user_routes,
+    *static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
+    path('components/menu-view/', menu_view, name="menu_view"),
+    path('components/mobile-menu-view/', mobile_menu_view, name="mobile_menu_view"),
+    path('components/mobile-splash-content-view/', mobile_splash_content_view, name="mobile_splash_content_view"),
+    path('components/keeplist-preview-view/<str:user_id>/', keeplist_preview_view, name="keeplist_preview_view"),
+    path('components/bookmarks-preview-view/<str:user_id>/', bookmarks_preview_view, name="bookmarks_preview_view"),
+    path('components/bookmarks-view/<str:user_id>/', bookmarks_view, name="bookmarks_view"),
+    path('components/bookmarks-content-view/<str:user_id>/<str:list_id>/', bookmarks_content_view, name="bookmarks_content_view"),
+    path('components/list-view/<str:user_id>/<str:list_type>/<str:list_id>', list_view, name="list_view"),
+    path('components/list-content-view/<str:user_id>/<str:list_type>/<str:list_id>', list_content_view, name="list_content_view"),
+    path('components/item-view/<str:user_id>/<str:list_type>/<str:list_id>/<str:item_id>', item_view, name="item_view"),
+    path('components/item-content-view/<str:user_id>/<str:list_type>/<str:list_id>/<str:item_id>', item_content_view, name="item_content_view"),
+    path('components/more-items-view/<str:user_id>/<str:list_type>', more_items_view, name="more_items_view"),
+    path('components/header-content-view/', header_content_view, name="header_content_view"),
+    path('components/profile-view/<str:user_id>/', profile_view, name="profile_view"),
+    path('components/profile-content-view/<str:user_id>/', profile_content_view, name="profile_content_view"),
+    path('components/share-modal-view/', share_modal_view, name="share_modal_view"),
+] 

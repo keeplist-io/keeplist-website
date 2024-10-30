@@ -1,7 +1,7 @@
 <div hx-get="{% url 'header_content_view' %}" hx-target="#header-content" hx-vals='{"title": "{{title}}"}' hx-trigger="load"></div>
 
 <div class="flex items-center justify-center">
-    <div class="col-span-3 mt-[var(--space-5xlarge)]" hx-get="{% url 'list_content_view' %}" hx-vals='{"list_id": "{{list_id}}", "list_name":"{{title}}"}' hx-trigger="load" hx-swap="outerHTML">
+    <div class="col-span-3 mt-[var(--space-5xlarge)]" hx-get="{% url 'list_content_view' user_id list_type list_id %}" hx-vals='{"title": "{{title}}"}' hx-trigger="load" hx-swap="outerHTML">
         <div class="loading-indicator flex items-center justify-center">
             <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
         </div>

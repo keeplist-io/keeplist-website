@@ -1,36 +1,38 @@
 {% load static %}
 
 <div class="flex relative text-center justify-center align-middle h-full">
-    {% if header_info.has_history %}
-    <div class="flex absolute left-0 top-0 bottom-0 align-middle">
-        <button hx-get="{% url 'last_view' %}" hx-push-url="{{header_info.last_url}}" 
-            hx-target="#center-content" hx-swap="show:window:top"
-            hx-on:htmx-trigger="document.querySelector('#header-title').innerHTML = '';">
-            <picture>
-                <source
-                  srcset={% static "chevron-left-dark-mode.svg" %}
-                  media="(prefers-color-scheme: dark)"
-                />
-                <img
-                  src={% static "chevron-left.svg" %}
-                  alt="Back"
-                />
-            </picture>
-        </button>
-    </div>
+  <div
+    class="flex absolute left-0 top-0 bottom-0 align-middle"
+    x-data="{}"
+    x-init="
+    paths = window.location.pathname.split('/').filter(s => s);
+    if (paths.length > 2) {
+        parentPath = '/' + paths.slice(0, -1).join('/') + '/';
+        $refs.parentButton.setAttribute('hx-get', parentPath);
+    } else {
+        $refs.parentButton.style.display = 'none';
+    }
+    "
+    >
+    <button
+      x-ref="parentButton"
+      hx-target="body"
+      hx-swap="show:window:top"
+      hx-on:htmx-trigger="document.querySelector('#header-title').innerHTML = '';"
+    >
+      <picture>
+        <source srcset={% static "chevron-left-dark-mode.svg" %} media="(prefers-color-scheme: dark)" /> <img
+        src={% static "chevron-left.svg" %} alt="Back" />
+      </picture>
+    </button>
+  </div>
+  <div id="header-title" class="self-center text-center">
+    <span class="block font-400 font-bold"> {{ header_info.title }} </span>
+    {% if header_info.subtitle %}
+    <span class="font-500"> {{ header_info.subtitle }} </span>
     {% endif %}
-    <div id="header-title" class="self-center text-center">
-        <span class="block font-400 font-bold">
-            {{ header_info.title }}
-        </span>
-        {% if header_info.subtitle %}
-        <span class="font-500">
-            {{ header_info.subtitle }}
-        </span>
-        {% endif %}
-    </div>
-    {% if header_info.hide_bottom_border %}
-    <div class="header-border-cover sm:hidden absolute top-10 h-2 bg-[color:var(--background-default)]">
-    </div>
-    {% endif %}
+  </div>
+  {% if header_info.hide_bottom_border %}
+  <div class="header-border-cover sm:hidden absolute top-10 h-2 bg-[color:var(--background-default)]"></div>
+  {% endif %}
 </div>
