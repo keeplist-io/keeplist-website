@@ -27,9 +27,7 @@ AWS_BUCKET = {
     "bucket_name": env.str("AWS_STORAGE_BUCKET_NAME"),
     "custom_domain": AWS_S3_CUSTOM_DOMAIN,
     "querystring_auth": False,
-    "file_overwrite": False,
-    "access_key": env.str("AWS_ACCESS_KEY_ID"),
-    "secret_key": env.str("AWS_SECRET_ACCESS_KEY"),
+    "file_overwrite": False
 }
 
 STORAGES = {
@@ -39,12 +37,12 @@ STORAGES = {
         "OPTIONS": {
             **AWS_BUCKET,
             "file_overwrite": True,
-            "location": "static",
+            "location": "web_static",
         },
     },
 }
 
-STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/web_static/"
 # MEDIA
 # ------------------------------------------------------------------------------
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
