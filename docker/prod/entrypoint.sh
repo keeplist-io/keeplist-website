@@ -1,0 +1,6 @@
+#!/bin/sh
+set -o errexit
+set -o pipefail
+set -o nounset
+
+exec echo "Hello, World!"

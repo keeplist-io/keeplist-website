@@ -34,7 +34,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
+          file: ./docker/prod/Dockerfile
           push: true
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/keeplist:web-${{ steps.get_version.outputs.VERSION }}
