@@ -198,7 +198,7 @@ async def share_modal_view(request):
 async def profile_view(request, user_id):
     if request.session.get('current_user', {}).get('name', None):
         user = await api.get_user(user_id)
-        user_name = user["name"]
+        user_name = user["username"]
     else:
         user_name = request.session.get('current_user', {}).get('name', "")
 
