@@ -100,6 +100,9 @@ async def keeplist_preview_view(request, user_id):
     if not user_id or not list_data or not keeplists:
         return await async_render(request, 'includes/no_content.html', {"range": range(3), "message": "No link items published yet"})
 
+    for kl in keeplists:
+        if kl.get('items', None):
+            kl['items'] = kl['items'][:3]
     
     return await async_render(request, 'includes/keeplist_preview_container.html', {'keeplists': keeplists, 'user_id': keeplists[0].get('user', {}).get('username')})
     
