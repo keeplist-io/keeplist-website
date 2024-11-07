@@ -36,5 +36,5 @@ urlpatterns = [
     path('components/header-content-view/', header_content_view, name="header_content_view"),
     path('components/profile-view/<str:user_id>/', profile_view, name="profile_view"),
     path('components/profile-content-view/<str:user_id>/', profile_content_view, name="profile_content_view"),
-    path('components/share-modal-view/', share_modal_view, name="share_modal_view"),
+    path('components/share-modal-view/<str:username>/', share_modal_view, name="share_modal_view"),
 ] 

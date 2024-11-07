@@ -172,10 +172,8 @@ async def bookmarks_content_view(request, user_id, list_id=None):
 
     return await async_render(request, 'includes/bookmarks_content.html', {'bookmarks': bookmarks, 'list_id': list_id, 'user_id': user_id})
 
-async def share_modal_view(request):
-    user_id = request.GET.get("user_id", "")
-    profile_url = 'profile/'+user_id
-    full_profile_url = 'https://keeplist.io/' + profile_url
+async def share_modal_view(request, username):
+    profile_url = 'https://keeplist.io/u/' + username
     
     if request.user_agent.is_mobile:
         is_iOS = request.user_agent.os.family == "iOS"
@@ -188,11 +186,10 @@ async def share_modal_view(request):
             app_store_url = ""
             app_store_text_image = static("google-play-text.svg")
             app_store_image = static("google-play-icon.svg")
-            view_path = 'includes/mobile_share_modal.html'
             
         return await async_render(request, 'includes/mobile_share_modal.html', {'profile_url': profile_url, 'app_store_url': app_store_url, 'app_store_image': app_store_image, 'app_store_text_image': app_store_text_image})
         
-    return await async_render(request, 'includes/share_modal.html', {'profile_url': profile_url, 'full_profile_url': full_profile_url})
+    return await async_render(request, 'includes/share_modal.html', {'profile_url': profile_url})
 
 
 async def profile_view(request, user_id):

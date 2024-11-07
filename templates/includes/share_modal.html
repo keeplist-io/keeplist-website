@@ -7,7 +7,7 @@
 		<div class="font-300 font-bold mb-[var(--space-large)]">Share profile</div>
         <div class="flex justify-between font-400 py-[var(--space-medium)] px-[var(--space-xlarge)] mb-[var(--space-4xlarge)] bg-[color:var(--background-surface)] rounded-full">
             <div class="flex-1 overflow-hidden truncate">{{ profile_url }}</div>
-            <div class="relative cursor-pointer" hx-on:click="navigator.clipboard.writeText('{{full_profile_url}}'); document.getElementById('copied-tooltip').style.display = 'block'; setTimeout(() => {document.getElementById('copied-tooltip').style.display = 'none';}, 5000)">
+            <div class="relative cursor-pointer" hx-on:click="navigator.clipboard.writeText('{{profile_url}}'); document.getElementById('copied-tooltip').style.display = 'block'; setTimeout(() => {document.getElementById('copied-tooltip').style.display = 'none';}, 5000)">
                 <img src={% static "copy.svg" %}>
                 <div id="copied-tooltip" class="absolute -bottom-10 -left-4 hidden">Copied!</div>
             </div>

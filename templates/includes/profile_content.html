@@ -23,6 +23,6 @@
         {% endfor %}
     </div>
     <div class="share-container">
-        <button hx-get="{% url 'share_modal_view' %}" hx-target="body" hx-swap="beforeend" class="font-500 font-bold px-4 py-2 [color:var(--content-inverted-primary)] bg-[color:var(--action-primary-normal)]">Share Profile</button>
+        <button hx-get="{% url 'share_modal_view' user.username %}" hx-target="body" hx-swap="beforeend" class="font-500 font-bold px-4 py-2 [color:var(--content-inverted-primary)] bg-[color:var(--action-primary-normal)]">Share Profile</button>
     </div>
 </div>
